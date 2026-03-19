@@ -1,0 +1,26 @@
+// https://aka.ms/devcontainer.json
+{
+    "name": "Existing Docker Compose (Extend)",
+    "dockerComposeFile": ["../compose.yaml"],
+    "service": "strava_web",
+    "workspaceFolder": "/var/www/html",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "laravel.vscode-laravel",
+                "amiralizadeh9480.laravel-extra-intellisense",
+                "ryannaddy.laravel-artisan",
+                "esbenp.prettier-vscode",
+                "YoavBls.pretty-ts-errors",
+                "eamodio.gitlens",
+                "wayou.vscode-todo-highlight",
+                "formulahendry.auto-rename-tag",
+                "Vue.volar"
+            ]
+        }
+    },
+    "remoteUser": "sail",
+    "updateRemoteUserUID": true,
+    "postCreateCommand": "cp -n .env.example .env && composer install && php artisan key:generate && php artisan migrate --force && npm install",
+    "postStartCommand": "npm run dev && php artisan serve"
+}
