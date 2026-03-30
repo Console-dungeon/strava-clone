@@ -10,10 +10,8 @@ Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-    //else return redirect()->route('login');
-
-    //or unregistered welcome
-
+    else return redirect()->route('login');
+    
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
