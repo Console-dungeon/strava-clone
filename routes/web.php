@@ -11,13 +11,15 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
     else return redirect()->route('login');
-    
-    return Inertia::render('Welcome', [
+
+    //or unregistered welcome
+
+    /*return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-    ]);
+    ]);*/
 });
 
 Route::get('/dashboard', DashboardController::class)
