@@ -2,6 +2,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
+// shadcn imports
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+
 defineProps({
     stats: Object,
 });

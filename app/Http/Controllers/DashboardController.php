@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Activity;
+
 
 class DashboardController extends Controller
 {
@@ -22,6 +24,10 @@ class DashboardController extends Controller
                 'distance' => $totalDistance,
                 'duration' => $totalDuration,
                 'avgSpeed' => $avgSpeed,
+                'recent' => Activity::latest()
+                ->where('user_id', $user->id)
+                ->take(5)
+                ->get(['id', 'date', 'type', 'distance', 'duration']),
             ],
         ]);
     }
