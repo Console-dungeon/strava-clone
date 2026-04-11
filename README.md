@@ -36,7 +36,7 @@ make init
 ---
 ### After running `make init`, you should see a new `.env` file and a `vendor` folder in the project directory:
 
-![alt text](image-2.png)
+![alt text](./.github/image-2.png)
 
 ## 3. Open in Dev Container
 
@@ -46,7 +46,7 @@ Open the project folder in VS Code, then when prompted click **"Reopen in Contai
 Dev Containers: Reopen in Container
 ```
 
-![alt text](image.png)
+![alt text](./.github/image.png)
 
 VS Code will build the Docker environment and automatically run the post-create script, which:
 
@@ -59,13 +59,13 @@ VS Code will build the Docker environment and automatically run the post-create 
 
 ### Post-create script output should look like this:
 
-![alt text](image-1.png)
+![alt text](./.github/image-1.png)
 
 ## 4. Start the application
 
 The application is started through the debugger, which also opens the browser automatically. Use the bult-in vscode "Run and Debug".
 
-![alt text](image-3.png)
+![alt text](./.github/image-3.png)
 
 > If you'll run next time press `F5` or use the "Run and Debug" panel, it will remember the last used configuration and start the app without asking. 
 ---
