@@ -15,12 +15,12 @@
                 "eamodio.gitlens",
                 "wayou.vscode-todo-highlight",
                 "formulahendry.auto-rename-tag",
-                "Vue.volar"
+                "Vue.volar",
+                "Anthropic.claude-code"
             ]
         }
     },
     "remoteUser": "sail",
     "updateRemoteUserUID": true,
-    "postCreateCommand": " php artisan key:generate && php artisan migrate --force && npm install",
-    "postStartCommand": "npm run dev "
+    "postCreateCommand": "./.devcontainer/postCreateCommand.sh"
 }

@@ -1,16 +1,27 @@
 <script setup>
-import { ref } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 // shadcn imports
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from '@/components/ui/navigation-menu'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
-import { Avatar } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import {
+    NavigationMenu,
+    NavigationMenuList,
+    NavigationMenuItem,
+    NavigationMenuLink,
+} from '@/components/ui/navigation-menu';
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import { Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 
-import ApplicationLogo from '@/Components/ApplicationLogo.vue'
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
-const showingNavigationDropdown = ref(false)
+const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
@@ -19,11 +30,13 @@ const showingNavigationDropdown = ref(false)
         <nav class="border-b bg-white">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
-
                     <!-- LEFT SIDE -->
                     <div class="flex items-center gap-6">
                         <!-- Logo -->
-                        <Link :href="route('dashboard')" class="flex items-center">
+                        <Link
+                            :href="route('dashboard')"
+                            class="flex items-center"
+                        >
                             <ApplicationLogo class="h-8 w-auto text-primary" />
                         </Link>
 
@@ -34,7 +47,11 @@ const showingNavigationDropdown = ref(false)
                                     <NavigationMenuLink as-child>
                                         <Link
                                             :href="route('dashboard')"
-                                            :class="route().current('dashboard') ? 'text-primary font-medium' : 'text-muted-foreground'"
+                                            :class="
+                                                route().current('dashboard')
+                                                    ? 'font-medium text-primary'
+                                                    : 'text-muted-foreground'
+                                            "
                                         >
                                             Dashboard
                                         </Link>
@@ -45,26 +62,36 @@ const showingNavigationDropdown = ref(false)
                     </div>
 
                     <!-- RIGHT SIDE -->
-                    <div class="hidden sm:flex items-center gap-4">
-
+                    <div class="hidden items-center gap-4 sm:flex">
                         <!-- User Dropdown -->
                         <DropdownMenu>
                             <DropdownMenuTrigger as-child>
-                                <Button variant="ghost" class="flex items-center gap-2">
+                                <Button
+                                    variant="ghost"
+                                    class="flex items-center gap-2"
+                                >
                                     <Avatar class="h-6 w-6" />
-                                    <span>{{ $page.props.auth.user.name }}</span>
+                                    <span>{{
+                                        $page.props.auth.user.name
+                                    }}</span>
                                 </Button>
                             </DropdownMenuTrigger>
 
                             <DropdownMenuContent class="w-48" align="end">
                                 <DropdownMenuItem as-child>
-                                    <Link :href="route('profile.edit')">Profile</Link>
+                                    <Link :href="route('profile.edit')"
+                                        >Profile</Link
+                                    >
                                 </DropdownMenuItem>
 
                                 <DropdownMenuSeparator />
 
                                 <DropdownMenuItem as-child>
-                                    <Link :href="route('logout')" method="post" as="button">
+                                    <Link
+                                        :href="route('logout')"
+                                        method="post"
+                                        as="button"
+                                    >
                                         Log Out
                                     </Link>
                                 </DropdownMenuItem>
@@ -77,7 +104,10 @@ const showingNavigationDropdown = ref(false)
                         <Button
                             variant="ghost"
                             size="icon"
-                            @click="showingNavigationDropdown = !showingNavigationDropdown"
+                            @click="
+                                showingNavigationDropdown =
+                                    !showingNavigationDropdown
+                            "
                         >
                             <svg
                                 v-if="!showingNavigationDropdown"
@@ -86,8 +116,12 @@ const showingNavigationDropdown = ref(false)
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
                             >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M4 6h16M4 12h16M4 18h16" />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
                             </svg>
 
                             <svg
@@ -97,8 +131,12 @@ const showingNavigationDropdown = ref(false)
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
                             >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M6 18L18 6M6 6l12 12" />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
                             </svg>
                         </Button>
                     </div>
@@ -106,28 +144,46 @@ const showingNavigationDropdown = ref(false)
             </div>
 
             <!-- Mobile Menu -->
-            <div v-if="showingNavigationDropdown" class="sm:hidden border-t bg-white">
-                <div class="px-4 py-3 space-y-2">
-
+            <div
+                v-if="showingNavigationDropdown"
+                class="border-t bg-white sm:hidden"
+            >
+                <div class="space-y-2 px-4 py-3">
                     <Link
                         :href="route('dashboard')"
                         class="block py-2 text-sm"
-                        :class="route().current('dashboard') ? 'text-primary font-medium' : 'text-muted-foreground'"
+                        :class="
+                            route().current('dashboard')
+                                ? 'font-medium text-primary'
+                                : 'text-muted-foreground'
+                        "
                     >
                         Dashboard
                     </Link>
 
                     <div class="border-t pt-3">
-                        <div class="text-base font-medium">{{ $page.props.auth.user.name }}</div>
-                        <div class="text-sm text-muted-foreground">{{ $page.props.auth.user.email }}</div>
+                        <div class="text-base font-medium">
+                            {{ $page.props.auth.user.name }}
+                        </div>
+                        <div class="text-sm text-muted-foreground">
+                            {{ $page.props.auth.user.email }}
+                        </div>
                     </div>
 
                     <div class="space-y-1 pt-2">
-                        <Link :href="route('profile.edit')" class="block py-2 text-sm">
+                        <Link
+                            :href="route('profile.edit')"
+                            class="block py-2 text-sm"
+                        >
                             Profile
                         </Link>
 
-                        <Link :href="route('logout')" method="post" as="button" class="block py-2 text-sm">
+                        <Link
+                            :href="route('logout')"
+                            method="post"
+                            as="button"
+                            class="block py-2 text-sm"
+                        >
                             Log Out
                         </Link>
                     </div>

@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Vite",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": ["run", "dev"],
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "serverReadyAction": {
+                "pattern": "Local:",
+                "uriFormat": "http://localhost",
+                "action": "openExternally"
+            }
+        },
+        {
+            "name": "PHP artisan serve",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "php",
+            "runtimeArgs": ["artisan", "serve"],
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack (Laravel + Vite)",
+            "configurations": ["PHP artisan serve", "Vite"]
+        }
+    ]
+}

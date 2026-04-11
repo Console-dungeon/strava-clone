@@ -9,6 +9,7 @@ else
 endif
 
 init:
+	cp .env.example .env && \
 	$(DOCKER_ENV) docker run --rm \
     -v "$$(pwd):/var/www/html" \
     -w /var/www/html \

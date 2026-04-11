@@ -10,16 +10,9 @@ Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-    //else return redirect()->route('login');
+    else return redirect()->route('login');
 
-    //or unregistered welcome
 
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
 });
 
 Route::get('/dashboard', DashboardController::class)
