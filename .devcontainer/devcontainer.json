@@ -21,6 +21,5 @@
     },
     "remoteUser": "sail",
     "updateRemoteUserUID": true,
-    "postCreateCommand": " php artisan key:generate && php artisan migrate --force && npm install",
-    "postStartCommand": "npm run dev "
+    "postCreateCommand": "./.devcontainer/postCreateCommand.sh"
 }
