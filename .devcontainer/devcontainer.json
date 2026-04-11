@@ -15,7 +15,8 @@
                 "eamodio.gitlens",
                 "wayou.vscode-todo-highlight",
                 "formulahendry.auto-rename-tag",
-                "Vue.volar"
+                "Vue.volar",
+                "Anthropic.claude-code"
             ]
         }
     },
