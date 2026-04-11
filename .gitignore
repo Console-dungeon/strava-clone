@@ -9,8 +9,9 @@
 /.idea
 /.nova
 /.phpunit.cache
-/.vscode
 /.zed
+/.vscode/*
+!/.vscode/launch.json
 /auth.json
 /node_modules
 /public/build
@@ -22,3 +23,4 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/.pnpm-store
