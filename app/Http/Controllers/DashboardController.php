@@ -35,7 +35,7 @@ class DashboardController extends Controller
                 'distance' => $totalDistance,
                 'duration' => $this->formatDuration($totalDuration),
                 'avgSpeed' => $avgSpeed,
-                'recent' => Activity::latest()
+                'recent' => Activity::latest('date')
                 ->where('user_id', $user->id)
                 ->take(5)
                 ->get(['id', 'date', 'type', 'distance', 'duration'])
