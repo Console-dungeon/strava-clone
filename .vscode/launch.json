@@ -28,7 +28,13 @@
     "compounds": [
         {
             "name": "Full Stack (Laravel + Vite)",
-            "configurations": ["PHP artisan serve", "Vite"]
+            "configurations": ["PHP artisan serve", "Vite"],
+            "stopAll": true,
+            "presentation": {
+                "hidden": false,
+                "group": "",
+                "order": 1
+            }
         }
     ]
 }
