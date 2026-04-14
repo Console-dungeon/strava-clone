@@ -1,8 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
-// shadcn imports
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Table,
@@ -13,9 +12,24 @@ import {
     TableRow,
 } from '@/components/ui/table';
 
-defineProps({
-    stats: Object,
-});
+interface Activity {
+    id: number;
+    date: string;
+    type: string;
+    distance: number;
+    duration: number;
+}
+
+interface Stats {
+    distance: number;
+    duration: number;
+    avgSpeed: number;
+    recent: Activity[];
+}
+
+defineProps<{
+    stats: Stats | null;
+}>();
 </script>
 
 <template>
@@ -30,83 +44,59 @@ defineProps({
         </template>
 
         <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">
-                        <div
-                            class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8"
-                        >
-                            <!-- Statystyki -->
-                            <div class="grid gap-4 md:grid-cols-3">
-                                <div class="rounded-lg bg-white p-4 shadow">
-                                    <h3 class="text-sm text-gray-500">
-                                        Łączny dystans
-                                    </h3>
-                                    <p class="mt-2 text-2xl font-semibold">
-                                        {{ stats.distance }} km
-                                    </p>
-                                </div>
+            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
 
-                                <div class="rounded-lg bg-white p-4 shadow">
-                                    <h3 class="text-sm text-gray-500">
-                                        Łączny czas
-                                    </h3>
-                                    <p class="mt-2 text-2xl font-semibold">
-                                        {{ stats.duration }} min
-                                    </p>
-                                </div>
+                <template v-if="stats">
+                    <!-- Statystyki -->
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle class="text-sm font-medium text-muted-foreground">
+                                    Łączny dystans
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p class="text-2xl font-semibold">{{ stats.distance }} km</p>
+                            </CardContent>
+                        </Card>
 
-                                <div class="rounded-lg bg-white p-4 shadow">
-                                    <h3 class="text-sm text-gray-500">
-                                        Średnia prędkość
-                                    </h3>
-                                    <p class="mt-2 text-2xl font-semibold">
-                                        {{ stats.avgSpeed }} km/h
-                                    </p>
-                                </div>
-                            </div>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle class="text-sm font-medium text-muted-foreground">
+                                    Łączny czas
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p class="text-2xl font-semibold">{{ stats.duration }}</p>
+                            </CardContent>
+                        </Card>
 
-                            <!-- Ostatnie aktywności -->
-                            <div class="rounded-lg bg-white p-4 shadow">
-                                <h3 class="text-lg font-semibold">
-                                    Ostatnie aktywności
-                                </h3>
-                                <p class="mt-2 text-gray-500">
-                                    Brak aktywności – dodamy je później.
-                                </p>
-                            </div>
-                            <!-- Wykres -->
-                            <div class="rounded-lg bg-white p-4 shadow">
-                                <h3 class="text-lg font-semibold">
-                                    Wykres aktywności
-                                </h3>
-                                <div
-                                    class="mt-4 flex h-64 items-center justify-center text-gray-400"
-                                >
-                                    (wykres pojawi się tutaj)
-                                </div>
-                            </div>
-                        </div>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle class="text-sm font-medium text-muted-foreground">
+                                    Średnia prędkość
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p class="text-2xl font-semibold">{{ stats.avgSpeed }} km/h</p>
+                            </CardContent>
+                        </Card>
                     </div>
-                </div>
 
-                <!-- Ostatnie aktywności -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Ostatnie aktywności</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <!-- Jeśli nie ma aktywności -->
-                        <div
-                            v-if="!stats.recent || stats.recent.length === 0"
-                            class="py-6 text-center text-muted-foreground"
-                        >
-                            Brak aktywności – dodamy je później.
-                        </div>
+                    <!-- Ostatnie aktywności -->
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ostatnie aktywności</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div
+                                v-if="!stats.recent || stats.recent.length === 0"
+                                class="py-6 text-center text-muted-foreground"
+                            >
+                                Brak aktywności.
+                            </div>
 
-                        <!-- Jeśli są aktywności -->
-                        <div v-else>
-                            <Table>
+                            <Table v-else>
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Data</TableHead>
@@ -115,50 +105,38 @@ defineProps({
                                         <TableHead>Czas</TableHead>
                                     </TableRow>
                                 </TableHeader>
-
                                 <TableBody>
                                     <TableRow
                                         v-for="activity in stats.recent"
                                         :key="activity.id"
                                     >
-                                        <TableCell>{{
-                                            activity.date
-                                        }}</TableCell>
-                                        <TableCell>{{
-                                            activity.type
-                                        }}</TableCell>
-                                        <TableCell
-                                            >{{
-                                                activity.distance
-                                            }}
-                                            km</TableCell
-                                        >
-                                        <TableCell
-                                            >{{
-                                                activity.duration
-                                            }}
-                                            min</TableCell
-                                        >
+                                        <TableCell>{{ activity.date }}</TableCell>
+                                        <TableCell>{{ activity.type }}</TableCell>
+                                        <TableCell>{{ activity.distance }} km</TableCell>
+                                        <TableCell>{{ activity.duration }}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
 
-                <!-- Wykres -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Wykres aktywności</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div
-                            class="flex h-64 items-center justify-center text-muted-foreground"
-                        >
-                            (wykres pojawi się tutaj)
-                        </div>
-                    </CardContent>
-                </Card>
+                    <!-- Wykres -->
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Wykres aktywności</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div class="flex h-64 items-center justify-center text-muted-foreground">
+                                (wykres pojawi się tutaj)
+                            </div>
+                        </CardContent>
+                    </Card>
+                </template>
+
+                <div v-else class="py-6 text-center text-muted-foreground">
+                    Brak danych do wyświetlenia.
+                </div>
+
             </div>
         </div>
     </AuthenticatedLayout>
