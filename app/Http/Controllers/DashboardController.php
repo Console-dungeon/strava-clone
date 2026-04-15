@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Activity;
@@ -30,11 +31,30 @@ class DashboardController extends Controller
             ? round($totalDistance / ($totalDuration / 60), 2)
             : 0;
 
+        $today = Carbon::today();
+        $sevenDaysAgo = $today->copy()->subDays(6);
+
+        $activityByDate = $user->activities()
+            ->whereBetween('date', [$sevenDaysAgo->toDateString(), $today->toDateString()])
+            ->get(['date', 'distance'])
+            ->groupBy('date')
+            ->map(fn($group) => round($group->sum('distance'), 2));
+
+        $chartData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = $today->copy()->subDays($i);
+            $chartData[] = [
+                'label' => $date->format('d.m'),
+                'distance' => (float) ($activityByDate->get($date->toDateString()) ?? 0),
+            ];
+        }
+
         return Inertia::render('Dashboard', [
             'stats' => [
                 'distance' => $totalDistance,
                 'duration' => $this->formatDuration($totalDuration),
                 'avgSpeed' => $avgSpeed,
+                'chartData' => $chartData,
                 'recent' => Activity::latest('date')
                 ->where('user_id', $user->id)
                 ->take(5)
