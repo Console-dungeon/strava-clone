@@ -102,18 +102,24 @@ const fillDevCredentials = () => {
                 </Button>
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-                >
-                    Forgot your password?
-                </Link>
-
+            <div class="mt-4 flex items-center justify-end gap-4">
+                <div class="flex flex-col gap-1">
+                    <Link
+                        v-if="canResetPassword"
+                        :href="route('password.request')"
+                        class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+                    >
+                        Forgot your password?
+                    </Link>
+                    <Link
+                        :href="route('register')"
+                        class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+                    >
+                        Register
+                    </Link>
+                </div>
                 <Button
                     type="submit"
-                    class="ms-4"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
