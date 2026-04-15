@@ -11,6 +11,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { VisAxis, VisGroupedBar, VisXYContainer } from '@unovis/vue';
 
 interface Activity {
     id: number;
@@ -20,10 +21,16 @@ interface Activity {
     duration: number;
 }
 
+interface ChartDay {
+    label: string;
+    distance: number;
+}
+
 interface Stats {
     distance: number;
     duration: number;
     avgSpeed: number;
+    chartData: ChartDay[];
     recent: Activity[];
 }
 
@@ -123,12 +130,20 @@ defineProps<{
                     <!-- Wykres -->
                     <Card>
                         <CardHeader>
-                            <CardTitle>Wykres aktywności</CardTitle>
+                            <CardTitle>Dystans — ostatnie 7 dni</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div class="flex h-64 items-center justify-center text-muted-foreground">
-                                (wykres pojawi się tutaj)
-                            </div>
+                            <VisXYContainer :data="stats.chartData" :height="220">
+                                <VisGroupedBar
+                                    :x="(_: ChartDay, i: number) => i"
+                                    :y="[(d: ChartDay) => d.distance]"
+                                />
+                                <VisAxis
+                                    type="x"
+                                    :tick-format="(i: number) => stats!.chartData[i]?.label ?? ''"
+                                />
+                                <VisAxis type="y" :label="'km'" />
+                            </VisXYContainer>
                         </CardContent>
                     </Card>
                 </template>
