@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Checkbox from '@/Components/Checkbox.vue';
-import Button from '@/components/ui/button/Button.vue';
-import Input from '@/components/ui/input/Input.vue';
+import Button from '@/Components/ui/button/Button.vue';
+import Input from '@/Components/ui/input/Input.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import {
     Table,
     TableBody,
@@ -10,12 +9,13 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/ui/table';
+} from '@/Components/ui/table';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { VisAxis, VisGroupedBar, VisXYContainer } from '@unovis/vue';
 
 interface Activity {
     id: number;
-    date: string;
+    date: [string, string];
     type: string;
     distance: number;
     duration: number;
@@ -44,7 +44,7 @@ defineProps<{
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
+            <h2 class="text-xl leading-tight font-semibold text-gray-800">
                 Strava - Dashboard
             </h2>
             student‑developed fitness app
@@ -52,40 +52,51 @@ defineProps<{
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-
                 <template v-if="stats">
                     <!-- Statystyki -->
                     <div class="grid gap-4 md:grid-cols-3">
                         <Card>
                             <CardHeader>
-                                <CardTitle class="text-sm font-medium text-muted-foreground">
+                                <CardTitle
+                                    class="text-muted-foreground text-sm font-medium"
+                                >
                                     Łączny dystans
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p class="text-2xl font-semibold">{{ stats.distance }} km</p>
+                                <p class="text-2xl font-semibold">
+                                    {{ stats.distance }} km
+                                </p>
                             </CardContent>
                         </Card>
 
                         <Card>
                             <CardHeader>
-                                <CardTitle class="text-sm font-medium text-muted-foreground">
+                                <CardTitle
+                                    class="text-muted-foreground text-sm font-medium"
+                                >
                                     Łączny czas
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p class="text-2xl font-semibold">{{ stats.duration }}</p>
+                                <p class="text-2xl font-semibold">
+                                    {{ stats.duration }}
+                                </p>
                             </CardContent>
                         </Card>
 
                         <Card>
                             <CardHeader>
-                                <CardTitle class="text-sm font-medium text-muted-foreground">
+                                <CardTitle
+                                    class="text-muted-foreground text-sm font-medium"
+                                >
                                     Średnia prędkość
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p class="text-2xl font-semibold">{{ stats.avgSpeed }} km/h</p>
+                                <p class="text-2xl font-semibold">
+                                    {{ stats.avgSpeed }} km/h
+                                </p>
                             </CardContent>
                         </Card>
                     </div>
@@ -97,8 +108,10 @@ defineProps<{
                         </CardHeader>
                         <CardContent>
                             <div
-                                v-if="!stats.recent || stats.recent.length === 0"
-                                class="py-6 text-center text-muted-foreground"
+                                v-if="
+                                    !stats.recent || stats.recent.length === 0
+                                "
+                                class="text-muted-foreground py-6 text-center"
                             >
                                 Brak aktywności.
                             </div>
@@ -117,10 +130,21 @@ defineProps<{
                                         v-for="activity in stats.recent"
                                         :key="activity.id"
                                     >
-                                        <TableCell>{{ activity.date }}</TableCell>
-                                        <TableCell>{{ activity.type }}</TableCell>
-                                        <TableCell>{{ activity.distance }} km</TableCell>
-                                        <TableCell>{{ activity.duration }}</TableCell>
+                                        <TableCell>{{
+                                            activity.date
+                                        }}</TableCell>
+                                        <TableCell>{{
+                                            activity.type
+                                        }}</TableCell>
+                                        <TableCell
+                                            >{{
+                                                activity.distance
+                                            }}
+                                            km</TableCell
+                                        >
+                                        <TableCell>{{
+                                            activity.duration
+                                        }}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
@@ -133,14 +157,20 @@ defineProps<{
                             <CardTitle>Dystans — ostatnie 7 dni</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <VisXYContainer :data="stats.chartData" :height="220">
+                            <VisXYContainer
+                                :data="stats.chartData"
+                                :height="220"
+                            >
                                 <VisGroupedBar
                                     :x="(_: ChartDay, i: number) => i"
                                     :y="[(d: ChartDay) => d.distance]"
                                 />
                                 <VisAxis
                                     type="x"
-                                    :tick-format="(i: number) => stats!.chartData[i]?.label ?? ''"
+                                    :tick-format="
+                                        (i: number) =>
+                                            stats!.chartData[i]?.label ?? ''
+                                    "
                                 />
                                 <VisAxis type="y" :label="'km'" />
                             </VisXYContainer>
@@ -148,10 +178,9 @@ defineProps<{
                     </Card>
                 </template>
 
-                <div v-else class="py-6 text-center text-muted-foreground">
+                <div v-else class="text-muted-foreground py-6 text-center">
                     Brak danych do wyświetlenia.
                 </div>
-
             </div>
         </div>
     </AuthenticatedLayout>
