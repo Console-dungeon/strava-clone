@@ -1,23 +1,23 @@
 <script setup>
-import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 // shadcn imports
-import {
-    NavigationMenu,
-    NavigationMenuList,
-    NavigationMenuItem,
-    NavigationMenuLink,
-} from '@/components/ui/navigation-menu';
+import { Avatar } from '@/Components/ui/avatar';
+import { Button } from '@/Components/ui/button';
 import {
     DropdownMenu,
-    DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+    DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu';
+import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+} from '@/Components/ui/navigation-menu';
 
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
@@ -25,7 +25,7 @@ const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
-    <div class="min-h-screen bg-background text-foreground">
+    <div class="bg-background text-foreground min-h-screen">
         <!-- NAVBAR -->
         <nav class="border-b bg-white">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -37,7 +37,7 @@ const showingNavigationDropdown = ref(false);
                             :href="route('dashboard')"
                             class="flex items-center"
                         >
-                            <ApplicationLogo class="h-8 w-auto text-primary" />
+                            <ApplicationLogo class="text-primary h-8 w-auto" />
                         </Link>
 
                         <!-- Desktop Navigation -->
@@ -49,7 +49,7 @@ const showingNavigationDropdown = ref(false);
                                             :href="route('dashboard')"
                                             :class="
                                                 route().current('dashboard')
-                                                    ? 'font-medium text-primary'
+                                                    ? 'text-primary font-medium'
                                                     : 'text-muted-foreground'
                                             "
                                         >
@@ -154,7 +154,7 @@ const showingNavigationDropdown = ref(false);
                         class="block py-2 text-sm"
                         :class="
                             route().current('dashboard')
-                                ? 'font-medium text-primary'
+                                ? 'text-primary font-medium'
                                 : 'text-muted-foreground'
                         "
                     >
@@ -165,7 +165,7 @@ const showingNavigationDropdown = ref(false);
                         <div class="text-base font-medium">
                             {{ $page.props.auth.user.name }}
                         </div>
-                        <div class="text-sm text-muted-foreground">
+                        <div class="text-muted-foreground text-sm">
                             {{ $page.props.auth.user.email }}
                         </div>
                     </div>

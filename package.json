@@ -5,7 +5,7 @@
     "scripts": {
         "build": "vue-tsc && vite build",
         "dev": "vite",
-        "type-check": "vue-tsc --noEmit",
+        "type-check": "vue-tsc --noEmit -p tsconfig.app.json",
         "lint": "eslint resources/js --ext .ts,.vue --ignore-path .gitignore --fix"
     },
     "devDependencies": {

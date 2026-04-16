@@ -1,8 +1,11 @@
 {
     "extends": "@vue/tsconfig/tsconfig.dom.json",
-    "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
-    "exclude": ["src/**/__tests__/*"],
+    "include": ["env.d.ts", "resources/js/**/*", "resources/js/**/*.vue"],
+    "exclude": ["resources/js/**/__tests__/*"],
     "compilerOptions": {
+        // Allow Vue SFCs with <script setup> without lang="ts".
+        "allowJs": true,
+
         // Extra safety for array and object lookups, but may have false positives.
         "noUncheckedIndexedAccess": true,
 
