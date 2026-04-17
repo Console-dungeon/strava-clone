@@ -57,6 +57,21 @@ const showingNavigationDropdown = ref(false);
                                         </Link>
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
+                                
+                                <NavigationMenuItem>
+                                    <NavigationMenuLink as-child>
+                                        <Link
+                                            :href="route('activities.create')"
+                                            :class="
+                                                route().current('activities.create')
+                                                    ? 'font-medium text-primary'
+                                                    : 'text-muted-foreground'
+                                            "
+                                        >
+                                            Dodaj aktywność
+                                        </Link>
+                                    </NavigationMenuLink>
+                                </NavigationMenuItem>
                             </NavigationMenuList>
                         </NavigationMenu>
                     </div>

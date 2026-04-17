@@ -20,6 +20,10 @@ class ActivityController extends Controller
         ]);
     }
 
+    public function create(){
+        return Inertia::render('Activities/Create');
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
