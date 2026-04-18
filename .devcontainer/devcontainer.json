@@ -15,7 +15,8 @@
                 "eamodio.gitlens",
                 "wayou.vscode-todo-highlight",
                 "Vue.volar",
-                "Anthropic.claude-code"
+                "Anthropic.claude-code",
+                "dbaeumer.vscode-eslint"
             ]
         }
     },

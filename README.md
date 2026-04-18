@@ -34,6 +34,7 @@ make init
 > Works on Linux, macOS, and Windows (Git Bash / MSYS2).
 
 ---
+
 ### After running `make init`, you should see a new `.env` file and a `vendor` folder in the project directory:
 
 ![alt text](./.github/image-2.png)
@@ -67,7 +68,8 @@ The application is started through the debugger, which also opens the browser au
 
 ![alt text](./.github/image-3.png)
 
-> If you'll run next time press `F5` or use the "Run and Debug" panel, it will remember the last used configuration and start the app without asking. 
+> If you'll run next time press `F5` or use the "Run and Debug" panel, it will remember the last used configuration and start the app without asking.
+
 ---
 
 <!-- INSERT SCREENSHOT: running app in browser / debugger active -->

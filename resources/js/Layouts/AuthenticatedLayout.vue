@@ -1,23 +1,23 @@
 <script setup>
-import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 // shadcn imports
+import { Avatar } from '@/Components/ui/avatar';
+import { Button } from '@/Components/ui/button';
 import {
-    NavigationMenu,
-    NavigationMenuList,
-    NavigationMenuItem,
-    NavigationMenuLink,
-} from '@/components/ui/navigation-menu';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu';
 import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from '@/Components/ui/navigation-menu';
 
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
@@ -165,57 +165,141 @@ const showingNavigationDropdown = ref(false);
             >
                 <div class="space-y-2 px-4 py-3">
                     <Link
-                        :href="route('dashboard')"
-                        class="block py-2 text-sm"
-                        :class="
-                            route().current('dashboard')
-                                ? 'font-medium text-primary'
-                                : 'text-muted-foreground'
-                        "
+                      :href="route('dashboard')"
+                      :class="
+                        route().current('dashboard')
+                          ? 'text-primary font-medium'
+                          : 'text-muted-foreground'
+                      "
                     >
-                        Dashboard
+                      Dashboard
                     </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
 
-                    <div class="border-t pt-3">
-                        <div class="text-base font-medium">
-                            {{ $page.props.auth.user.name }}
-                        </div>
-                        <div class="text-sm text-muted-foreground">
-                            {{ $page.props.auth.user.email }}
-                        </div>
-                    </div>
+          <!-- RIGHT SIDE -->
+          <div class="hidden items-center gap-4 sm:flex">
+            <!-- User Dropdown -->
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Button variant="ghost" class="flex items-center gap-2">
+                  <Avatar class="h-6 w-6" />
+                  <span>{{ $page.props.auth.user.name }}</span>
+                </Button>
+              </DropdownMenuTrigger>
 
-                    <div class="space-y-1 pt-2">
-                        <Link
-                            :href="route('profile.edit')"
-                            class="block py-2 text-sm"
-                        >
-                            Profile
-                        </Link>
+              <DropdownMenuContent class="w-48" align="end">
+                <DropdownMenuItem as-child>
+                  <Link :href="route('profile.edit')">Profile</Link>
+                </DropdownMenuItem>
 
-                        <Link
-                            :href="route('logout')"
-                            method="post"
-                            as="button"
-                            class="block py-2 text-sm"
-                        >
-                            Log Out
-                        </Link>
-                    </div>
-                </div>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem as-child>
+                  <Link :href="route('logout')" method="post" as="button">
+                    Log Out
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <!-- Mobile Hamburger -->
+          <div class="sm:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              @click="showingNavigationDropdown = !showingNavigationDropdown"
+            >
+              <svg
+                v-if="!showingNavigationDropdown"
+                class="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+
+              <svg
+                v-else
+                class="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div v-if="showingNavigationDropdown" class="border-t bg-white sm:hidden">
+        <div class="space-y-2 px-4 py-3">
+          <Link
+            :href="route('dashboard')"
+            class="block py-2 text-sm"
+            :class="
+              route().current('dashboard')
+                ? 'text-primary font-medium'
+                : 'text-muted-foreground'
+            "
+          >
+            Dashboard
+          </Link>
+
+          <div class="border-t pt-3">
+            <div class="text-base font-medium">
+              {{ $page.props.auth.user.name }}
             </div>
-        </nav>
-
-        <!-- PAGE HEADER -->
-        <header v-if="$slots.header" class="border-b bg-white">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <slot name="header" />
+            <div class="text-muted-foreground text-sm">
+              {{ $page.props.auth.user.email }}
             </div>
-        </header>
+          </div>
 
-        <!-- PAGE CONTENT -->
-        <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <slot />
-        </main>
-    </div>
+          <div class="space-y-1 pt-2">
+            <Link :href="route('profile.edit')" class="block py-2 text-sm">
+              Profile
+            </Link>
+
+            <Link
+              :href="route('logout')"
+              method="post"
+              as="button"
+              class="block py-2 text-sm"
+            >
+              Log Out
+            </Link>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <header v-if="$slots.header" class="border-b bg-white">
+      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <slot name="header" />
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <slot />
+    </main>
+  </div>
 </template>
