@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ActivityController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
+    Route::get('/activities/create', [ActivityController::class, 'create'])->name('activities.create');
     Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
 });
 
