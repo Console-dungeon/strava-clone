@@ -1,5 +1,6 @@
 <script setup>
 import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm } from '@inertiajs/vue3';
@@ -48,7 +49,7 @@ function submit() {
         <TextInput id="form-date" type="date" v-model="form.date" />
       </div>
 
-      <Button type="submit">Zapisz</Button>
+      <PrimaryButton type="submit">Zapisz</PrimaryButton>
     </form>
   </AuthenticatedLayout>
 </template>
