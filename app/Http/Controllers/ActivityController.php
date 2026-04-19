@@ -24,6 +24,11 @@ class ActivityController extends Controller
         return Inertia::render('Activities/Create');
     }
 
+    public function main(){
+        return Inertia::render('Activities/Main');
+    }
+
+
     public function store(Request $request)
     {
         $data = $request->validate([

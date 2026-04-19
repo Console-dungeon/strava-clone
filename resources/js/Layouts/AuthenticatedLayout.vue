@@ -58,6 +58,20 @@ const showingNavigationDropdown = ref(false);
                 <NavigationMenuItem>
                   <NavigationMenuLink as-child>
                     <Link
+                      :href="route('activities.main')"
+                      :class="
+                        route().current('activities.main')
+                          ? 'text-primary font-medium'
+                          : 'text-muted-foreground'
+                      "
+                    >
+                      Aktywności
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink as-child>
+                    <Link
                       :href="route('activities.create')"
                       :class="
                         route().current('activities.create')

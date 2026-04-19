@@ -11,7 +11,6 @@ import {
   TableRow,
 } from '@/Components/ui/table';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { VisAxis, VisGroupedBar, VisXYContainer } from '@unovis/vue';
 
 interface Activity {
   id: number;
@@ -21,16 +20,10 @@ interface Activity {
   duration: number;
 }
 
-interface ChartDay {
-  label: string;
-  distance: number;
-}
-
 interface Stats {
   distance: number;
   duration: number;
   avgSpeed: number;
-  chartData: ChartDay[];
   recent: Activity[];
 }
 
@@ -40,12 +33,12 @@ defineProps<{
 </script>
 
 <template>
-  <Head title="Dashboard" />
+  <Head title="Aktywności" />
 
   <AuthenticatedLayout>
     <template #header>
       <h2 class="text-xl leading-tight font-semibold text-gray-800">
-        Straba - Dashboard
+        Straba - Aktywności
       </h2>
       student‑developed fitness app
     </template>
@@ -53,44 +46,6 @@ defineProps<{
     <div class="py-12">
       <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
         <template v-if="stats">
-          <!-- Statystyki -->
-          <div class="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle class="text-muted-foreground text-sm font-medium">
-                  Łączny dystans
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p class="text-2xl font-semibold">{{ stats.distance }} km</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle class="text-muted-foreground text-sm font-medium">
-                  Łączny czas
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p class="text-2xl font-semibold">
-                  {{ stats.duration }}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle class="text-muted-foreground text-sm font-medium">
-                  Średnia prędkość
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p class="text-2xl font-semibold">{{ stats.avgSpeed }} km/h</p>
-              </CardContent>
-            </Card>
-          </div>
-
           <!-- Ostatnie aktywności -->
           <Card>
             <CardHeader>
@@ -122,26 +77,6 @@ defineProps<{
                   </TableRow>
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
-
-          <!-- Wykres -->
-          <Card>
-            <CardHeader>
-              <CardTitle>Dystans — ostatnie 7 dni</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <VisXYContainer :data="stats.chartData" :height="220">
-                <VisGroupedBar
-                  :x="(_: ChartDay, i: number) => i"
-                  :y="[(d: ChartDay) => d.distance]"
-                />
-                <VisAxis
-                  type="x"
-                  :tick-format="(i: number) => stats!.chartData[i]?.label ?? ''"
-                />
-                <VisAxis type="y" :label="'km'" />
-              </VisXYContainer>
             </CardContent>
           </Card>
         </template>
