@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import Checkbox from '@/Components/Checkbox.vue';
-import Button from '@/Components/ui/button/Button.vue';
-import Input from '@/Components/ui/input/Input.vue';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import { Button } from '@/Components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
@@ -33,94 +41,108 @@ const fillDevCredentials = () => {
   <GuestLayout>
     <Head title="Log in" />
 
-    <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-      {{ status }}
+    <div class="mb-6 flex justify-center">
+      <Link href="/">
+        <ApplicationLogo />
+      </Link>
     </div>
 
-    <form @submit.prevent="submit">
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700"
-          >Email</label
-        >
+    <Card class="w-full sm:w-md">
+      <CardHeader>
+        <CardTitle class="text-xl">Welcome back</CardTitle>
+        <CardDescription>Sign in to your account</CardDescription>
+      </CardHeader>
 
-        <Input
-          id="email"
-          type="email"
-          class="mt-1"
-          v-model="form.email"
-          required
-          autofocus
-          autocomplete="username"
-        />
+      <CardContent>
+        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
+          {{ status }}
+        </div>
 
-        <p v-if="form.errors.email" class="mt-2 text-sm text-red-600">
-          {{ form.errors.email }}
-        </p>
-      </div>
+        <form @submit.prevent="submit" class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label for="email" class="text-foreground text-sm font-medium"
+              >Email</label
+            >
+            <Input
+              id="email"
+              type="email"
+              v-model="form.email"
+              placeholder="you@example.com"
+              required
+              autofocus
+              autocomplete="username"
+            />
+            <p v-if="form.errors.email" class="text-destructive text-sm">
+              {{ form.errors.email }}
+            </p>
+          </div>
 
-      <div class="mt-4">
-        <label for="password" class="block text-sm font-medium text-gray-700"
-          >Password</label
-        >
+          <div class="flex flex-col gap-1.5">
+            <label for="password" class="text-foreground text-sm font-medium"
+              >Password</label
+            >
+            <Input
+              id="password"
+              type="password"
+              v-model="form.password"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            />
+            <p v-if="form.errors.password" class="text-destructive text-sm">
+              {{ form.errors.password }}
+            </p>
+          </div>
 
-        <Input
-          id="password"
-          type="password"
-          class="mt-1"
-          v-model="form.password"
-          required
-          autocomplete="current-password"
-        />
+          <div class="flex items-center gap-2">
+            <input
+              id="remember"
+              type="checkbox"
+              v-model="form.remember"
+              class="border-border text-primary focus:ring-ring rounded"
+            />
+            <label for="remember" class="text-muted-foreground text-sm"
+              >Remember me</label
+            >
+          </div>
 
-        <p v-if="form.errors.password" class="mt-2 text-sm text-red-600">
-          {{ form.errors.password }}
-        </p>
-      </div>
+          <Button
+            type="submit"
+            class="w-full"
+            :class="{ 'opacity-50': form.processing }"
+            :disabled="form.processing"
+          >
+            Sign in
+          </Button>
 
-      <div class="mt-4 block">
-        <label class="flex items-center">
-          <Checkbox name="remember" v-model:checked="form.remember" />
-          <span class="ms-2 text-sm text-gray-600">Remember me</span>
-        </label>
-      </div>
+          <Button
+            type="button"
+            variant="outline"
+            @click="fillDevCredentials"
+            class="w-full border-purple-500 text-xs"
+          >
+            Click here, you lazy bastard - I got you ❤
+          </Button>
+        </form>
+      </CardContent>
 
-      <div class="mt-4 flex items-center justify-end gap-4">
-        <Button
-          type="submit"
-          class="w-full py-5"
-          :class="{ 'opacity-25': form.processing }"
-          :disabled="form.processing"
-        >
-          Log in
-        </Button>
-      </div>
-
-      <div class="mt-4 flex justify-center">
-        <Button
-          type="button"
-          variant="outline"
-          @click="fillDevCredentials"
-          class="cursor-pointer border-purple-500 text-xs"
-        >
-          Click here, you lazy bastard - I got you ❤
-        </Button>
-      </div>
-
-      <div class="mt-4 flex justify-center gap-4">
+      <CardFooter
+        class="text-muted-foreground flex justify-center gap-4 text-sm"
+      >
         <Link
           v-if="canResetPassword"
           :href="route('password.request')"
-          class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+          class="hover:text-foreground underline transition-colors"
         >
           Forgot your password?
         </Link>
         <Link
           :href="route('register')"
-          class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+          class="hover:text-foreground underline transition-colors"
         >
           Register
         </Link>
-      </div>
-    </form>
+      </CardFooter>
+    </Card>
   </GuestLayout>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
+import { useDark, useToggle } from '@vueuse/core';
+import { computed, ref } from 'vue';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
@@ -30,21 +31,8 @@ const userInitials = computed(() => {
 
 const showingNavigationDropdown = ref(false);
 
-const isDark = ref(false);
-
-onMounted(() => {
-  isDark.value =
-    localStorage.getItem('theme') === 'dark' ||
-    (!localStorage.getItem('theme') &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches);
-  document.documentElement.classList.toggle('dark', isDark.value);
-});
-
-function toggleDark() {
-  isDark.value = !isDark.value;
-  document.documentElement.classList.toggle('dark', isDark.value);
-  localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
-}
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
 </script>
 
 <template>
@@ -79,7 +67,7 @@ function toggleDark() {
 
           <!-- RIGHT SIDE (desktop) -->
           <div class="hidden items-center gap-2 sm:flex">
-            <Button variant="ghost" size="icon" @click="toggleDark">
+            <Button variant="ghost" size="icon" @click="() => toggleDark()">
               <Sun v-if="isDark" class="h-5 w-5" />
               <Moon v-else class="h-5 w-5" />
             </Button>
@@ -118,7 +106,7 @@ function toggleDark() {
 
           <!-- Mobile controls -->
           <div class="flex items-center gap-2 sm:hidden">
-            <Button variant="ghost" size="icon" @click="toggleDark">
+            <Button variant="ghost" size="icon" @click="() => toggleDark()">
               <Sun v-if="isDark" class="h-5 w-5" />
               <Moon v-else class="h-5 w-5" />
             </Button>

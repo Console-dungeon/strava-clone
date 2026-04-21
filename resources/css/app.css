@@ -131,7 +131,7 @@
   .dark .bg-app {
     background:
       radial-gradient(
-        ellipse 0% 0% at bottom right,
+        ellipse 5% 5% at bottom right,
         rgb(67 20 7 / 0.18) 0%,
         transparent 100%
       ),
