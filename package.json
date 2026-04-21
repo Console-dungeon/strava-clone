@@ -9,7 +9,8 @@
     "lint": "eslint ./resources/js --ignore-pattern .gitignore --fix",
     "format:check": "prettier --check resources/js",
     "format": "prettier --write resources/js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

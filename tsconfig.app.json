@@ -1,6 +1,11 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "resources/js/**/*", "resources/js/**/*.vue"],
+  "include": [
+    "env.d.ts",
+    "resources/js/**/*",
+    "resources/js/**/*.vue",
+    "resources/js/global.d.ts"
+  ],
   "exclude": ["resources/js/**/__tests__/*"],
   "compilerOptions": {
     // Allow Vue SFCs with <script setup> without lang="ts".
