@@ -1,9 +1,9 @@
-<script setup>
-import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+<script setup lang="ts">
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 // shadcn imports
-import { Avatar } from '@/Components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import {
   DropdownMenu,
@@ -20,6 +20,19 @@ import {
 } from '@/Components/ui/navigation-menu';
 
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+
+const page = usePage();
+
+const user = computed(() => page.props.auth.user);
+
+const userInitials = computed(() => {
+  if (!user.value) return '';
+  const names = user.value.name.split(' ');
+  const initials =
+    names[0]?.charAt(0).toUpperCase() +
+    (names[1]?.charAt(0).toUpperCase() || '');
+  return initials;
+});
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -57,7 +70,7 @@ const showingNavigationDropdown = ref(false);
 
                 <NavigationMenuItem>
                   <NavigationMenuLink as-child>
-                    <Link
+                    <!-- <Link
                       :href="route('activities.main')"
                       :class="
                         route().current('activities.main')
@@ -65,13 +78,13 @@ const showingNavigationDropdown = ref(false);
                           : 'text-muted-foreground'
                       "
                     >
-                      Aktywności
-                    </Link>
+                      Aktywności -->
+                    <!-- </Link> -->
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink as-child>
-                    <Link
+                    <!-- <Link
                       :href="route('activities.create')"
                       :class="
                         route().current('activities.create')
@@ -80,7 +93,7 @@ const showingNavigationDropdown = ref(false);
                       "
                     >
                       Dodaj aktywność
-                    </Link>
+                    </Link> -->
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -92,13 +105,23 @@ const showingNavigationDropdown = ref(false);
             <!-- User Dropdown -->
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
-                <Button variant="ghost" class="flex items-center gap-2">
-                  <Avatar class="h-6 w-6" />
-                  <span>{{ $page.props.auth.user.name }}</span>
+                <Button
+                  variant="ghost"
+                  class="flex cursor-pointer items-center gap-2"
+                >
+                  <Avatar>
+                    <!-- INFO: Temporary static avatar. -->
+                    <AvatarImage
+                      src="https://github.com/shadcn.png"
+                      alt="@shadcn"
+                    />
+                    <AvatarFallback>{{ userInitials }}</AvatarFallback>
+                  </Avatar>
+                  <span>{{ user?.name || '' }}</span>
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent class="w-48" align="end">
+              <DropdownMenuContent class="w-48 *:cursor-pointer" align="end">
                 <DropdownMenuItem as-child>
                   <Link :href="route('profile.edit')">Profile</Link>
                 </DropdownMenuItem>
@@ -106,7 +129,7 @@ const showingNavigationDropdown = ref(false);
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem as-child>
-                  <Link :href="route('logout')" method="post" as="button">
+                  <Link :href="route('logout')" method="post" class="w-full">
                     Log Out
                   </Link>
                 </DropdownMenuItem>
@@ -170,7 +193,7 @@ const showingNavigationDropdown = ref(false);
             Dashboard
           </Link>
 
-          <Link
+          <!-- <Link
             :href="route('activities.create')"
             class="block py-2 text-sm"
             :class="
@@ -180,14 +203,14 @@ const showingNavigationDropdown = ref(false);
             "
           >
             Dodaj aktywność
-          </Link>
+          </Link> -->
 
           <div class="border-t pt-3">
             <div class="text-base font-medium">
-              {{ $page.props.auth.user.name }}
+              {{ user?.name || '' }}
             </div>
             <div class="text-muted-foreground text-sm">
-              {{ $page.props.auth.user.email }}
+              {{ user?.email || '' }}
             </div>
           </div>
 

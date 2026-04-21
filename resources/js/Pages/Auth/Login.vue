@@ -84,6 +84,17 @@ const fillDevCredentials = () => {
         </label>
       </div>
 
+      <div class="mt-4 flex items-center justify-end gap-4">
+        <Button
+          type="submit"
+          class="w-full py-5"
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Log in
+        </Button>
+      </div>
+
       <div class="mt-4 flex justify-center">
         <Button
           type="button"
@@ -95,29 +106,20 @@ const fillDevCredentials = () => {
         </Button>
       </div>
 
-      <div class="mt-4 flex items-center justify-end gap-4">
-        <div class="flex flex-col gap-1">
-          <Link
-            v-if="canResetPassword"
-            :href="route('password.request')"
-            class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-          >
-            Forgot your password?
-          </Link>
-          <Link
-            :href="route('register')"
-            class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-          >
-            Register
-          </Link>
-        </div>
-        <Button
-          type="submit"
-          :class="{ 'opacity-25': form.processing }"
-          :disabled="form.processing"
+      <div class="mt-4 flex justify-center gap-4">
+        <Link
+          v-if="canResetPassword"
+          :href="route('password.request')"
+          class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
         >
-          Log in
-        </Button>
+          Forgot your password?
+        </Link>
+        <Link
+          :href="route('register')"
+          class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+        >
+          Register
+        </Link>
       </div>
     </form>
   </GuestLayout>
