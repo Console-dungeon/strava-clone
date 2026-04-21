@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
-// shadcn imports
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import {
@@ -12,12 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from '@/Components/ui/navigation-menu';
+import { Menu, Moon, Sun, X } from 'lucide-vue-next';
 
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
@@ -28,81 +22,68 @@ const user = computed(() => page.props.auth.user);
 const userInitials = computed(() => {
   if (!user.value) return '';
   const names = user.value.name.split(' ');
-  const initials =
+  return (
     names[0]?.charAt(0).toUpperCase() +
-    (names[1]?.charAt(0).toUpperCase() || '');
-  return initials;
+    (names[1]?.charAt(0).toUpperCase() || '')
+  );
 });
 
 const showingNavigationDropdown = ref(false);
+
+const isDark = ref(false);
+
+onMounted(() => {
+  isDark.value =
+    localStorage.getItem('theme') === 'dark' ||
+    (!localStorage.getItem('theme') &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.classList.toggle('dark', isDark.value);
+});
+
+function toggleDark() {
+  isDark.value = !isDark.value;
+  document.documentElement.classList.toggle('dark', isDark.value);
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
+}
 </script>
 
 <template>
-  <div class="bg-background text-foreground min-h-screen">
+  <div class="bg-app text-foreground min-h-screen">
     <!-- NAVBAR -->
-    <nav class="border-b bg-white">
+    <nav
+      class="dark:bg-background/40 sticky top-0 z-50 border-b bg-white/60 backdrop-blur-xs backdrop-saturate-50"
+    >
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <!-- LEFT SIDE -->
           <div class="flex items-center gap-6">
-            <!-- Logo -->
             <Link :href="route('dashboard')" class="flex items-center">
               <ApplicationLogo class="text-primary h-8 w-auto" />
             </Link>
 
             <!-- Desktop Navigation -->
-            <NavigationMenu class="hidden sm:flex">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink as-child>
-                    <Link
-                      :href="route('dashboard')"
-                      :class="
-                        route().current('dashboard')
-                          ? 'text-primary font-medium'
-                          : 'text-muted-foreground'
-                      "
-                    >
-                      Dashboard
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuLink as-child>
-                    <!-- <Link
-                      :href="route('activities.main')"
-                      :class="
-                        route().current('activities.main')
-                          ? 'text-primary font-medium'
-                          : 'text-muted-foreground'
-                      "
-                    >
-                      Aktywności -->
-                    <!-- </Link> -->
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink as-child>
-                    <!-- <Link
-                      :href="route('activities.create')"
-                      :class="
-                        route().current('activities.create')
-                          ? 'text-primary font-medium'
-                          : 'text-muted-foreground'
-                      "
-                    >
-                      Dodaj aktywność
-                    </Link> -->
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            <div class="hidden items-center gap-1 sm:flex">
+              <Link
+                :href="route('dashboard')"
+                class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                :class="
+                  route().current('dashboard')
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                "
+              >
+                Dashboard
+              </Link>
+            </div>
           </div>
 
-          <!-- RIGHT SIDE -->
-          <div class="hidden items-center gap-4 sm:flex">
-            <!-- User Dropdown -->
+          <!-- RIGHT SIDE (desktop) -->
+          <div class="hidden items-center gap-2 sm:flex">
+            <Button variant="ghost" size="icon" @click="toggleDark">
+              <Sun v-if="isDark" class="h-5 w-5" />
+              <Moon v-else class="h-5 w-5" />
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Button
@@ -125,105 +106,71 @@ const showingNavigationDropdown = ref(false);
                 <DropdownMenuItem as-child>
                   <Link :href="route('profile.edit')">Profile</Link>
                 </DropdownMenuItem>
-
                 <DropdownMenuSeparator />
-
                 <DropdownMenuItem as-child>
-                  <Link :href="route('logout')" method="post" class="w-full">
-                    Log Out
-                  </Link>
+                  <Link :href="route('logout')" method="post" class="w-full"
+                    >Log Out</Link
+                  >
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <!-- Mobile Hamburger -->
-          <div class="sm:hidden">
+          <!-- Mobile controls -->
+          <div class="flex items-center gap-2 sm:hidden">
+            <Button variant="ghost" size="icon" @click="toggleDark">
+              <Sun v-if="isDark" class="h-5 w-5" />
+              <Moon v-else class="h-5 w-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
               @click="showingNavigationDropdown = !showingNavigationDropdown"
             >
-              <svg
-                v-if="!showingNavigationDropdown"
-                class="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-
-              <svg
-                v-else
-                class="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X v-if="showingNavigationDropdown" class="h-5 w-5" />
+              <Menu v-else class="h-5 w-5" />
             </Button>
           </div>
         </div>
       </div>
 
       <!-- Mobile Menu -->
-      <div v-if="showingNavigationDropdown" class="border-t bg-white sm:hidden">
-        <div class="space-y-2 px-4 py-3">
+      <div
+        v-if="showingNavigationDropdown"
+        class="dark:bg-background/80 border-t bg-white/80 backdrop-blur-sm sm:hidden"
+      >
+        <div class="space-y-1 px-4 py-3">
           <Link
             :href="route('dashboard')"
-            class="block py-2 text-sm"
+            class="block rounded-md px-3 py-2 text-sm font-medium"
             :class="
               route().current('dashboard')
-                ? 'text-primary font-medium'
+                ? 'text-foreground'
                 : 'text-muted-foreground'
             "
           >
             Dashboard
           </Link>
+        </div>
 
-          <!-- <Link
-            :href="route('activities.create')"
-            class="block py-2 text-sm"
-            :class="
-              route().current('activities.create')
-                ? 'text-primary font-medium'
-                : 'text-muted-foreground'
-            "
-          >
-            Dodaj aktywność
-          </Link> -->
-
-          <div class="border-t pt-3">
-            <div class="text-base font-medium">
-              {{ user?.name || '' }}
-            </div>
-            <div class="text-muted-foreground text-sm">
-              {{ user?.email || '' }}
-            </div>
+        <div class="border-t px-4 py-3">
+          <div class="text-base font-medium">{{ user?.name || '' }}</div>
+          <div class="text-muted-foreground text-sm">
+            {{ user?.email || '' }}
           </div>
 
-          <div class="space-y-1 pt-2">
-            <Link :href="route('profile.edit')" class="block py-2 text-sm">
+          <div class="mt-3 space-y-1">
+            <Link
+              :href="route('profile.edit')"
+              class="text-muted-foreground hover:text-foreground block py-2 text-sm"
+            >
               Profile
             </Link>
-
             <Link
               :href="route('logout')"
               method="post"
               as="button"
-              class="block py-2 text-sm"
+              class="text-muted-foreground hover:text-foreground block py-2 text-sm"
             >
               Log Out
             </Link>
@@ -233,7 +180,10 @@ const showingNavigationDropdown = ref(false);
     </nav>
 
     <!-- PAGE HEADER -->
-    <header v-if="$slots.header" class="border-b bg-white">
+    <header
+      v-if="$slots.header"
+      class="dark:bg-background/70 border-b bg-white/70 backdrop-blur-sm"
+    >
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <slot name="header" />
       </div>

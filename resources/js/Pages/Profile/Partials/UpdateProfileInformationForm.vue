@@ -25,9 +25,8 @@ const form = useForm({
 <template>
   <section>
     <header>
-      <h2 class="text-lg font-medium text-gray-900">Profile Information</h2>
-
-      <p class="mt-1 text-sm text-gray-600">
+      <h2 class="text-foreground text-lg font-medium">Profile Information</h2>
+      <p class="text-muted-foreground mt-1 text-sm">
         Update your account's profile information and email address.
       </p>
     </header>
@@ -38,7 +37,6 @@ const form = useForm({
     >
       <div>
         <InputLabel for="name" value="Name" />
-
         <Input
           id="name"
           type="text"
@@ -48,13 +46,11 @@ const form = useForm({
           autofocus
           autocomplete="name"
         />
-
         <InputError class="mt-2" :message="form.errors.name" />
       </div>
 
       <div>
         <InputLabel for="email" value="Email" />
-
         <Input
           id="email"
           type="email"
@@ -63,18 +59,17 @@ const form = useForm({
           required
           autocomplete="username"
         />
-
         <InputError class="mt-2" :message="form.errors.email" />
       </div>
 
       <div v-if="mustVerifyEmail && user.email_verified_at === null">
-        <p class="mt-2 text-sm text-gray-800">
+        <p class="text-muted-foreground mt-2 text-sm">
           Your email address is unverified.
           <Link
             :href="route('verification.send')"
             method="post"
             as="button"
-            class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+            class="text-foreground hover:text-muted-foreground underline focus:outline-none"
           >
             Click here to re-send the verification email.
           </Link>
@@ -97,7 +92,10 @@ const form = useForm({
           leave-active-class="transition ease-in-out"
           leave-to-class="opacity-0"
         >
-          <p v-if="form.recentlySuccessful" class="text-sm text-gray-600">
+          <p
+            v-if="form.recentlySuccessful"
+            class="text-muted-foreground text-sm"
+          >
             Saved.
           </p>
         </Transition>

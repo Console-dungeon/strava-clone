@@ -1,26 +1,27 @@
 // https://aka.ms/devcontainer.json
 {
-    "name": "Existing Docker Compose (Extend)",
-    "dockerComposeFile": ["../compose.yaml"],
-    "service": "strava_web",
-    "workspaceFolder": "/var/www/html",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "laravel.vscode-laravel",
-                "amiralizadeh9480.laravel-extra-intellisense",
-                "ryannaddy.laravel-artisan",
-                "esbenp.prettier-vscode",
-                "YoavBls.pretty-ts-errors",
-                "eamodio.gitlens",
-                "wayou.vscode-todo-highlight",
-                "Vue.volar",
-                "Anthropic.claude-code",
-                "dbaeumer.vscode-eslint"
-            ]
-        }
-    },
-    "remoteUser": "sail",
-    "updateRemoteUserUID": true,
-    "postCreateCommand": "./.devcontainer/postCreateCommand.sh"
+  "name": "Existing Docker Compose (Extend)",
+  "dockerComposeFile": ["../compose.yaml"],
+  "service": "strava_web",
+  "workspaceFolder": "/var/www/html",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "laravel.vscode-laravel",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "ryannaddy.laravel-artisan",
+        "esbenp.prettier-vscode",
+        "YoavBls.pretty-ts-errors",
+        "eamodio.gitlens",
+        "wayou.vscode-todo-highlight",
+        "Vue.volar",
+        "Anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  },
+  "remoteUser": "sail",
+  "updateRemoteUserUID": true,
+  "postCreateCommand": "./.devcontainer/postCreateCommand.sh"
 }
