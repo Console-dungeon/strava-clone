@@ -29,6 +29,8 @@ const userInitials = computed(() => {
   );
 });
 
+console.log(page.props);
+
 const showingNavigationDropdown = ref(false);
 
 const isDark = useDark();
