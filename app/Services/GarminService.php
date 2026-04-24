@@ -3,19 +3,21 @@
 namespace App\Services;
 
 use Alexoid\GarminConnect\GarminConnect;
+use Alexoid\GarminConnect\TokenStore\LaravelCacheTokenStore;
 
 class GarminService
 {
+    private GarminConnect $garmin;
+
     public function __construct()
     {
-        $garmin = new GarminConnect(
+        $user = auth()->guard()->user();
+        // INFO: This "env" props are just a temporary approach to test the Garmin API. The modal is needed on the Frontend Side to ask the user for his Garmin credentials, just wrote it here to don't forget ;p
+        $this->garmin = new GarminConnect(
             email: env('GARMIN_EMAIL'),
             password: env('GARMIN_PASSWORD'),
+            tokenStore: new LaravelCacheTokenStore(prefix: "garmin_tokens_{$user->id}_")
         );
-        $garmin->login('./garminconnect');
-        $summary = $garmin->getUserSummary('2026-04-24');
-        $activities = $garmin->getHeartRates('2026-04-23');
-        dd($activities, $summary);
-
+        $this->garmin->login();
     }
 }
