@@ -17,7 +17,8 @@
         "Vue.volar",
         "Anthropic.claude-code",
         "dbaeumer.vscode-eslint",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "open-southeners.laravel-pint"
       ]
     }
   },
