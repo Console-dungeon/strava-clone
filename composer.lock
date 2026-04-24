@@ -4,8 +4,79 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4162b31d165a0f482e1da8cf60516639",
+    "content-hash": "954841dd2a2e655ecfe3fd827ad3ced0",
     "packages": [
+        {
+            "name": "alexoid/laravel-garmin",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aIeXoid/laravel-garmin.git",
+                "reference": "fdffa21cce6a1c580a692821ed5c25f650e5eb6a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aIeXoid/laravel-garmin/zipball/fdffa21cce6a1c580a692821ed5c25f650e5eb6a",
+                "reference": "fdffa21cce6a1c580a692821ed5c25f650e5eb6a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.5",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "suggest": {
+                "illuminate/cache": "Required for LaravelCacheTokenStore",
+                "illuminate/console": "Required for garmin:login Artisan command",
+                "illuminate/support": "Required for Laravel integration (^11.0|^12.0)"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "GarminConnect": "Alexoid\\GarminConnect\\Laravel\\GarminConnect"
+                    },
+                    "providers": [
+                        "Alexoid\\GarminConnect\\Laravel\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Alexoid\\GarminConnect\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "alexoid",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP API wrapper for Garmin Connect with Laravel support",
+            "homepage": "https://github.com/aIeXoid/laravel-garmin",
+            "keywords": [
+                "api",
+                "fitness",
+                "garmin",
+                "garmin-connect",
+                "health",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/aIeXoid/laravel-garmin/issues",
+                "source": "https://github.com/aIeXoid/laravel-garmin"
+            },
+            "time": "2026-03-03T12:50:26+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.14.8",

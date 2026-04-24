@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ActivityController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Services\GarminService;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -19,6 +20,10 @@ Route::get('/', function () {
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth'])
     ->name('dashboard');
+
+Route::get('/garmin-test', function (GarminService $garmin) {
+    dd($garmin);
+})->name("garmin-test");
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
