@@ -18,18 +18,19 @@ function submit() {
   form.post(route('activities.store'));
 }
 </script>
-
+<!---->
 <template>
   <Head title="Dodaj aktywność" />
 
   <AuthenticatedLayout>
+    <!--
     <template #header>
       <h2 class="text-xl leading-tight font-semibold text-gray-800">
         Straba - Dodaj aktywność
       </h2>
       student‑developed fitness app
     </template>
-
+  -->
     <div class="py-12">
       <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
         <Card class="mx-auto max-w-md">
