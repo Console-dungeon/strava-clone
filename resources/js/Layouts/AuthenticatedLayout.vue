@@ -64,6 +64,28 @@ const toggleDark = useToggle(isDark);
               >
                 Dashboard
               </Link>
+              <Link
+                :href="route('activities.main')"
+                class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                :class="
+                  route().current('activities.main')
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                "
+              >
+                Aktywności
+              </Link>
+              <Link
+                :href="route('activities.create')"
+                class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                :class="
+                  route().current('activities.create')
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                "
+              >
+                Dodaj aktywność
+              </Link>
             </div>
           </div>
 
