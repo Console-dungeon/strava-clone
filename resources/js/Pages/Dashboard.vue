@@ -37,6 +37,12 @@ interface Stats {
 defineProps<{
   stats: Stats | null;
 }>();
+
+const types: Record<string, string> = {
+  running: 'Bieg',
+  cycling: 'Rower',
+  swimming: 'Pływanie',
+};
 </script>
 
 <template>
@@ -115,7 +121,9 @@ defineProps<{
               <TableBody>
                 <TableRow v-for="activity in stats.recent" :key="activity.id">
                   <TableCell>{{ activity.date }}</TableCell>
-                  <TableCell>{{ activity.type }}</TableCell>
+                  <TableCell>{{
+                    types[activity.type] ?? activity.type
+                  }}</TableCell>
                   <TableCell>{{ activity.distance }} km</TableCell>
                   <TableCell>{{ activity.duration }}</TableCell>
                 </TableRow>
