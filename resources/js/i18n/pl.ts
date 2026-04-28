@@ -1,0 +1,95 @@
+export default {
+  nav: {
+    dashboard: 'Dashboard',
+    activities: 'Aktywności',
+    addActivity: 'Dodaj aktywność',
+    profile: 'Profil',
+    logout: 'Wyloguj',
+  },
+  dashboard: {
+    title: 'Dashboard',
+    totalDistance: 'Łączny dystans',
+    totalTime: 'Łączny czas',
+    avgSpeed: 'Średnia prędkość',
+    recentActivities: 'Ostatnie aktywności',
+    noActivities: 'Brak aktywności.',
+    noData: 'Brak danych do wyświetlenia.',
+    last7days: 'Dystans — ostatnie 7 dni',
+  },
+  activities: {
+    types: {
+      running: 'Bieg',
+      cycling: 'Rower',
+      swimming: 'Pływanie',
+    },
+    all: 'Wszystkie',
+    date: 'Data',
+    type: 'Typ',
+    distance: 'Dystans',
+    time: 'Czas',
+    previous: 'Poprzednia',
+    next: 'Następna',
+    page: 'Strona',
+    of: 'z',
+    noActivities: 'Brak aktywności.',
+    recentActivities: 'Ostatnie aktywności',
+    delete: {
+      title: 'Usuń aktywność',
+      message:
+        'Czy na pewno chcesz usunąć tę aktywność? Tej operacji nie można cofnąć.',
+      cancel: 'Anuluj',
+      confirm: 'Usuń',
+    },
+  },
+  profile: {
+    title: 'Profil',
+    information: {
+      title: 'Informacje profilowe',
+      description: 'Zaktualizuj dane swojego konta i adres e-mail.',
+      name: 'Imię',
+      email: 'E-mail',
+      unverified: 'Twój adres e-mail nie jest zweryfikowany.',
+      resend: 'Kliknij tutaj, aby wysłać ponownie link weryfikacyjny.',
+      verificationSent:
+        'Nowy link weryfikacyjny został wysłany na Twój adres e-mail.',
+      save: 'Zapisz',
+      saved: 'Zapisano.',
+    },
+    password: {
+      title: 'Zmień hasło',
+      description:
+        'Używaj długiego, losowego hasła, aby Twoje konto było bezpieczne.',
+      current: 'Obecne hasło',
+      new: 'Nowe hasło',
+      confirm: 'Potwierdź hasło',
+      save: 'Zapisz',
+      saved: 'Zapisano.',
+    },
+    delete: {
+      title: 'Usuń konto',
+      description:
+        'Po usunięciu konta wszystkie dane zostaną trwale usunięte. Przed usunięciem pobierz wszelkie dane, które chcesz zachować.',
+      button: 'Usuń konto',
+      modal: {
+        title: 'Czy na pewno chcesz usunąć swoje konto?',
+        description:
+          'Po usunięciu konta wszystkie dane zostaną trwale usunięte. Wprowadź hasło, aby potwierdzić.',
+        password: 'Hasło',
+        cancel: 'Anuluj',
+        confirm: 'Usuń konto',
+      },
+    },
+  },
+  create: {
+    title: 'Nowa aktywność',
+    pageTitle: 'Dodaj aktywność',
+    type: 'Typ aktywności',
+    selectType: 'Wybierz typ',
+    distance: 'Dystans (km)',
+    duration: 'Czas trwania (min)',
+    date: 'Data',
+    notes: 'Notatka (opcjonalnie)',
+    notesPlaceholder: 'Dodaj notatkę...',
+    submit: 'Zapisz aktywność',
+  },
+};

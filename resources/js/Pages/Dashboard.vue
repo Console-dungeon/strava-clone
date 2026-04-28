@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import {
@@ -13,12 +14,14 @@ import {
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { VisAxis, VisGroupedBar, VisXYContainer } from '@unovis/vue';
 
+const { t } = useI18n();
+
 interface Activity {
   id: number;
-  date: [string, string];
+  date: string;
   type: string;
   distance: number;
-  duration: number;
+  duration: string;
 }
 
 interface ChartDay {
@@ -28,7 +31,7 @@ interface ChartDay {
 
 interface Stats {
   distance: number;
-  duration: number;
+  duration: string;
   avgSpeed: number;
   chartData: ChartDay[];
   recent: Activity[];
@@ -37,33 +40,19 @@ interface Stats {
 defineProps<{
   stats: Stats | null;
 }>();
-
-const types: Record<string, string> = {
-  running: 'Bieg',
-  cycling: 'Rower',
-  swimming: 'Pływanie',
-};
 </script>
 
 <template>
-  <Head title="Dashboard" />
+  <Head :title="t('dashboard.title')" />
 
   <AuthenticatedLayout>
-    <!-- <template #header>
-      <h2 class="text-foreground text-xl leading-tight font-semibold">
-        Straba - Dashboard
-      </h2>
-      <p class="text-muted-foreground mt-1 text-sm">student‑developed fitness app</p>
-    </template> -->
-
     <div class="space-y-6">
       <template v-if="stats">
-        <!-- Statystyki -->
         <div class="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader>
               <CardTitle class="text-muted-foreground text-sm font-medium">
-                Łączny dystans
+                {{ t('dashboard.totalDistance') }}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -74,20 +63,18 @@ const types: Record<string, string> = {
           <Card>
             <CardHeader>
               <CardTitle class="text-muted-foreground text-sm font-medium">
-                Łączny czas
+                {{ t('dashboard.totalTime') }}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p class="text-2xl font-semibold">
-                {{ stats.duration }}
-              </p>
+              <p class="text-2xl font-semibold">{{ stats.duration }}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle class="text-muted-foreground text-sm font-medium">
-                Średnia prędkość
+                {{ t('dashboard.avgSpeed') }}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -96,33 +83,32 @@ const types: Record<string, string> = {
           </Card>
         </div>
 
-        <!-- Ostatnie aktywności -->
         <Card>
           <CardHeader>
-            <CardTitle>Ostatnie aktywności</CardTitle>
+            <CardTitle>{{ t('dashboard.recentActivities') }}</CardTitle>
           </CardHeader>
           <CardContent>
             <div
               v-if="!stats.recent || stats.recent.length === 0"
               class="text-muted-foreground py-6 text-center"
             >
-              Brak aktywności.
+              {{ t('dashboard.noActivities') }}
             </div>
 
             <Table v-else>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Typ</TableHead>
-                  <TableHead>Dystans</TableHead>
-                  <TableHead>Czas</TableHead>
+                  <TableHead>{{ t('activities.date') }}</TableHead>
+                  <TableHead>{{ t('activities.type') }}</TableHead>
+                  <TableHead>{{ t('activities.distance') }}</TableHead>
+                  <TableHead>{{ t('activities.time') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow v-for="activity in stats.recent" :key="activity.id">
                   <TableCell>{{ activity.date }}</TableCell>
                   <TableCell>{{
-                    types[activity.type] ?? activity.type
+                    t(`activities.types.${activity.type}`, activity.type)
                   }}</TableCell>
                   <TableCell>{{ activity.distance }} km</TableCell>
                   <TableCell>{{ activity.duration }}</TableCell>
@@ -132,10 +118,9 @@ const types: Record<string, string> = {
           </CardContent>
         </Card>
 
-        <!-- Wykres -->
         <Card>
           <CardHeader>
-            <CardTitle>Dystans — ostatnie 7 dni</CardTitle>
+            <CardTitle>{{ t('dashboard.last7days') }}</CardTitle>
           </CardHeader>
           <CardContent>
             <VisXYContainer :data="stats.chartData" :height="220">
@@ -154,7 +139,7 @@ const types: Record<string, string> = {
       </template>
 
       <div v-else class="text-muted-foreground py-6 text-center">
-        Brak danych do wyświetlenia.
+        {{ t('dashboard.noData') }}
       </div>
     </div>
   </AuthenticatedLayout>

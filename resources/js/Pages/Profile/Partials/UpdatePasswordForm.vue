@@ -5,6 +5,9 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const passwordInput = ref(null);
 const currentPasswordInput = ref(null);
@@ -36,15 +39,20 @@ const updatePassword = () => {
 <template>
   <section>
     <header>
-      <h2 class="text-foreground text-lg font-medium">Update Password</h2>
+      <h2 class="text-foreground text-lg font-medium">
+        {{ t('profile.password.title') }}
+      </h2>
       <p class="text-muted-foreground mt-1 text-sm">
-        Ensure your account is using a long, random password to stay secure.
+        {{ t('profile.password.description') }}
       </p>
     </header>
 
     <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
       <div>
-        <InputLabel for="current_password" value="Current Password" />
+        <InputLabel
+          for="current_password"
+          :value="t('profile.password.current')"
+        />
         <Input
           id="current_password"
           ref="currentPasswordInput"
@@ -57,7 +65,7 @@ const updatePassword = () => {
       </div>
 
       <div>
-        <InputLabel for="password" value="New Password" />
+        <InputLabel for="password" :value="t('profile.password.new')" />
         <Input
           id="password"
           ref="passwordInput"
@@ -70,7 +78,10 @@ const updatePassword = () => {
       </div>
 
       <div>
-        <InputLabel for="password_confirmation" value="Confirm Password" />
+        <InputLabel
+          for="password_confirmation"
+          :value="t('profile.password.confirm')"
+        />
         <Input
           id="password_confirmation"
           v-model="form.password_confirmation"
@@ -82,8 +93,9 @@ const updatePassword = () => {
       </div>
 
       <div class="flex items-center gap-4">
-        <Button :disabled="form.processing">Save</Button>
-
+        <Button :disabled="form.processing">{{
+          t('profile.password.save')
+        }}</Button>
         <Transition
           enter-active-class="transition ease-in-out"
           enter-from-class="opacity-0"
@@ -94,7 +106,7 @@ const updatePassword = () => {
             v-if="form.recentlySuccessful"
             class="text-muted-foreground text-sm"
           >
-            Saved.
+            {{ t('profile.password.saved') }}
           </p>
         </Transition>
       </div>
