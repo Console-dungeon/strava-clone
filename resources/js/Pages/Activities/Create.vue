@@ -46,9 +46,9 @@ function submit() {
                   class="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
                 >
                   <option value="" disabled>Wybierz typ</option>
-                  <option value="run">Bieg</option>
-                  <option value="bike">Rower</option>
-                  <option value="swim">Pływanie</option>
+                  <option value="running">Bieg</option>
+                  <option value="cycling">Rower</option>
+                  <option value="swimming">Pływanie</option>
                 </select>
               </div>
 
