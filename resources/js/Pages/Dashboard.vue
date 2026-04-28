@@ -27,16 +27,9 @@ console.log(props);
 </script>
 
 <template>
-  <Head title="Dashboard" />
+  <Head :title="t('dashboard.title')" />
 
   <AuthenticatedLayout>
-    <!-- <template #header>
-      <h2 class="text-foreground text-xl leading-tight font-semibold">
-        Straba - Dashboard
-      </h2>
-      <p class="text-muted-foreground mt-1 text-sm">student‑developed fitness app</p>
-    </template> -->
-
     <div class="space-y-6">
       <!-- Statystyki -->
       <div class="grid gap-4 md:grid-cols-3">
@@ -99,7 +92,7 @@ console.log(props);
               <!-- <TableRow v-for="activity in stats.recent" :key="activity.id">
                   <TableCell>{{ activity.date }}</TableCell>
                   <TableCell>{{
-                    types[activity.type] ?? activity.type
+                    t(`activities.types.${activity.type}`, activity.type)
                   }}</TableCell>
                   <TableCell>{{ activity.distance }} km</TableCell>
                   <TableCell>{{ activity.duration }}</TableCell>
@@ -112,7 +105,7 @@ console.log(props);
       <!-- Wykres -->
       <!-- <Card>
           <CardHeader>
-            <CardTitle>Dystans — ostatnie 7 dni</CardTitle>
+            <CardTitle>{{ t('dashboard.last7days') }}</CardTitle>
           </CardHeader>
           <CardContent>
             <VisXYContainer :data="stats.chartData" :height="220">
