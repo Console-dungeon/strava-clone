@@ -15,6 +15,11 @@ import {
 import { Menu, Moon, Sun, X } from 'lucide-vue-next';
 
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import { useLocale } from '@/composables/useLocale';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+const { currentLocale, toggleLocale } = useLocale();
 
 const page = usePage();
 
@@ -60,7 +65,7 @@ const toggleDark = useToggle(isDark);
                     : 'text-muted-foreground hover:text-foreground'
                 "
               >
-                Dashboard
+                {{ t('nav.dashboard') }}
               </Link>
               <Link
                 :href="route('activities.main')"
@@ -71,7 +76,7 @@ const toggleDark = useToggle(isDark);
                     : 'text-muted-foreground hover:text-foreground'
                 "
               >
-                Aktywności
+                {{ t('nav.activities') }}
               </Link>
               <Link
                 :href="route('activities.create')"
@@ -82,13 +87,22 @@ const toggleDark = useToggle(isDark);
                     : 'text-muted-foreground hover:text-foreground'
                 "
               >
-                Dodaj aktywność
+                {{ t('nav.addActivity') }}
               </Link>
             </div>
           </div>
 
           <!-- RIGHT SIDE (desktop) -->
           <div class="hidden items-center gap-2 sm:flex">
+            <Button
+              variant="ghost"
+              size="sm"
+              class="text-muted-foreground font-medium"
+              @click="toggleLocale"
+            >
+              {{ currentLocale.toUpperCase() === 'PL' ? 'PL' : 'EN' }}
+            </Button>
+
             <Button variant="ghost" size="icon" @click="() => toggleDark()">
               <Sun v-if="isDark" class="h-5 w-5" />
               <Moon v-else class="h-5 w-5" />
@@ -114,13 +128,15 @@ const toggleDark = useToggle(isDark);
 
               <DropdownMenuContent class="w-48 *:cursor-pointer" align="end">
                 <DropdownMenuItem as-child>
-                  <Link :href="route('profile.edit')">Profile</Link>
+                  <Link :href="route('profile.edit')">{{
+                    t('nav.profile')
+                  }}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem as-child>
-                  <Link :href="route('logout')" method="post" class="w-full"
-                    >Log Out</Link
-                  >
+                  <Link :href="route('logout')" method="post" class="w-full">{{
+                    t('nav.logout')
+                  }}</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -128,6 +144,14 @@ const toggleDark = useToggle(isDark);
 
           <!-- Mobile controls -->
           <div class="flex items-center gap-2 sm:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              class="text-muted-foreground font-medium"
+              @click="toggleLocale"
+            >
+              {{ currentLocale.toUpperCase() === 'PL' ? 'PL' : 'EN' }}
+            </Button>
             <Button variant="ghost" size="icon" @click="() => toggleDark()">
               <Sun v-if="isDark" class="h-5 w-5" />
               <Moon v-else class="h-5 w-5" />
@@ -159,7 +183,29 @@ const toggleDark = useToggle(isDark);
                 : 'text-muted-foreground'
             "
           >
-            Dashboard
+            {{ t('nav.dashboard') }}
+          </Link>
+          <Link
+            :href="route('activities.main')"
+            class="block rounded-md px-3 py-2 text-sm font-medium"
+            :class="
+              route().current('activities.main')
+                ? 'text-foreground'
+                : 'text-muted-foreground'
+            "
+          >
+            {{ t('nav.activities') }}
+          </Link>
+          <Link
+            :href="route('activities.create')"
+            class="block rounded-md px-3 py-2 text-sm font-medium"
+            :class="
+              route().current('activities.create')
+                ? 'text-foreground'
+                : 'text-muted-foreground'
+            "
+          >
+            {{ t('nav.addActivity') }}
           </Link>
         </div>
 
@@ -174,7 +220,7 @@ const toggleDark = useToggle(isDark);
               :href="route('profile.edit')"
               class="text-muted-foreground hover:text-foreground block py-2 text-sm"
             >
-              Profile
+              {{ t('nav.profile') }}
             </Link>
             <Link
               :href="route('logout')"
@@ -182,7 +228,7 @@ const toggleDark = useToggle(isDark);
               as="button"
               class="text-muted-foreground hover:text-foreground block py-2 text-sm"
             >
-              Log Out
+              {{ t('nav.logout') }}
             </Link>
           </div>
         </div>

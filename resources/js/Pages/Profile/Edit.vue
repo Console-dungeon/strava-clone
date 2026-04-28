@@ -2,9 +2,12 @@
 import { Card, CardContent } from '@/Components/ui/card';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
+
+const { t } = useI18n();
 
 defineProps<{
   mustVerifyEmail: boolean;
@@ -13,37 +16,32 @@ defineProps<{
 </script>
 
 <template>
-  <Head title="Profile" />
+  <Head :title="t('profile.title')" />
 
   <AuthenticatedLayout>
-    <!-- <template #header>
-      <h2 class="text-foreground text-xl leading-tight font-semibold">
-        Profile
-      </h2>
-    </template> -->
+    <div class="py-12">
+      <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+        <Card class="mx-auto max-w-2xl">
+          <CardContent class="p-6 sm:p-8">
+            <UpdateProfileInformationForm
+              :must-verify-email="mustVerifyEmail"
+              :status="status"
+            />
+          </CardContent>
+        </Card>
 
-    <div class="space-y-6">
-      <Card>
-        <CardContent class="p-6 sm:p-8">
-          <UpdateProfileInformationForm
-            :must-verify-email="mustVerifyEmail"
-            :status="status"
-            class="max-w-xl"
-          />
-        </CardContent>
-      </Card>
+        <Card class="mx-auto max-w-2xl">
+          <CardContent class="p-6 sm:p-8">
+            <UpdatePasswordForm />
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardContent class="p-6 sm:p-8">
-          <UpdatePasswordForm class="max-w-xl" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent class="p-6 sm:p-8">
-          <DeleteUserForm class="max-w-xl" />
-        </CardContent>
-      </Card>
+        <Card class="mx-auto max-w-2xl">
+          <CardContent class="p-6 sm:p-8">
+            <DeleteUserForm />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   </AuthenticatedLayout>
 </template>

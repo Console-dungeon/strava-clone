@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import Modal from '@/Components/Modal.vue';
 import { Button } from '@/Components/ui/button';
@@ -52,14 +53,18 @@ const props = defineProps<{
   filters: { type: string | null };
 }>();
 
-const types: Record<string, string> = {
-  running: 'Bieg',
-  cycling: 'Rower',
-  swimming: 'Pływanie',
-};
+const { t } = useI18n();
+
+const types = computed<Record<string, string>>(() => ({
+  running: t('activities.types.running'),
+  cycling: t('activities.types.cycling'),
+  swimming: t('activities.types.swimming'),
+}));
 
 function filterLabel() {
-  return props.filters.type ? types[props.filters.type] : 'Wszystkie';
+  return props.filters.type
+    ? types.value[props.filters.type]
+    : t('activities.all');
 }
 
 function setType(value: string | null) {
@@ -99,7 +104,7 @@ function confirmDelete() {
       <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
         <Card>
           <CardHeader class="flex flex-row items-center justify-between">
-            <CardTitle>Ostatnie aktywności</CardTitle>
+            <CardTitle>{{ t('activities.recentActivities') }}</CardTitle>
 
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
@@ -136,17 +141,17 @@ function confirmDelete() {
               v-if="activities.data.length === 0"
               class="text-muted-foreground py-6 text-center"
             >
-              Brak aktywności.
+              {{ t('activities.noActivities') }}
             </div>
 
             <template v-else>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Typ</TableHead>
-                    <TableHead>Dystans</TableHead>
-                    <TableHead>Czas</TableHead>
+                    <TableHead>{{ t('activities.date') }}</TableHead>
+                    <TableHead>{{ t('activities.type') }}</TableHead>
+                    <TableHead>{{ t('activities.distance') }}</TableHead>
+                    <TableHead>{{ t('activities.time') }}</TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -179,10 +184,11 @@ function confirmDelete() {
                   :disabled="!activities.prev_page_url"
                   @click="goTo(activities.prev_page_url)"
                 >
-                  Poprzednia
+                  {{ t('activities.previous') }}
                 </Button>
                 <span class="text-muted-foreground text-sm">
-                  Strona {{ activities.current_page }} z
+                  {{ t('activities.page') }} {{ activities.current_page }}
+                  {{ t('activities.of') }}
                   {{ activities.last_page }}
                 </span>
                 <Button
@@ -190,7 +196,7 @@ function confirmDelete() {
                   :disabled="!activities.next_page_url"
                   @click="goTo(activities.next_page_url)"
                 >
-                  Następna
+                  {{ t('activities.next') }}
                 </Button>
               </div>
             </template>
@@ -200,14 +206,19 @@ function confirmDelete() {
     </div>
     <Modal :show="confirmingId !== null" max-width="sm" @close="cancelDelete">
       <div class="p-6">
-        <h2 class="text-lg font-semibold">Usuń aktywność</h2>
+        <h2 class="text-lg font-semibold">
+          {{ t('activities.delete.title') }}
+        </h2>
         <p class="text-muted-foreground mt-2 text-sm">
-          Czy na pewno chcesz usunąć tę aktywność? Tej operacji nie można
-          cofnąć.
+          {{ t('activities.delete.message') }}
         </p>
         <div class="mt-6 flex justify-end gap-3">
-          <Button variant="outline" @click="cancelDelete">Anuluj</Button>
-          <Button variant="destructive" @click="confirmDelete">Usuń</Button>
+          <Button variant="outline" @click="cancelDelete">{{
+            t('activities.delete.cancel')
+          }}</Button>
+          <Button variant="destructive" @click="confirmDelete">{{
+            t('activities.delete.confirm')
+          }}</Button>
         </div>
       </div>
     </Modal>

@@ -1,0 +1,96 @@
+export default {
+  nav: {
+    dashboard: 'Dashboard',
+    activities: 'Activities',
+    addActivity: 'Add activity',
+    profile: 'Profile',
+    logout: 'Log out',
+  },
+  dashboard: {
+    title: 'Dashboard',
+    totalDistance: 'Total distance',
+    totalTime: 'Total time',
+    avgSpeed: 'Average speed',
+    recentActivities: 'Recent activities',
+    noActivities: 'No activities yet.',
+    noData: 'No data to display.',
+    last7days: 'Distance — last 7 days',
+  },
+  activities: {
+    types: {
+      running: 'Running',
+      cycling: 'Cycling',
+      swimming: 'Swimming',
+    },
+    all: 'All',
+    date: 'Date',
+    type: 'Type',
+    distance: 'Distance',
+    time: 'Time',
+    previous: 'Previous',
+    next: 'Next',
+    page: 'Page',
+    of: 'of',
+    noActivities: 'No activities yet.',
+    recentActivities: 'Recent activities',
+    delete: {
+      title: 'Delete activity',
+      message:
+        'Are you sure you want to delete this activity? This action cannot be undone.',
+      cancel: 'Cancel',
+      confirm: 'Delete',
+    },
+  },
+  profile: {
+    title: 'Profile',
+    information: {
+      title: 'Profile Information',
+      description:
+        "Update your account's profile information and email address.",
+      name: 'Name',
+      email: 'Email',
+      unverified: 'Your email address is unverified.',
+      resend: 'Click here to re-send the verification email.',
+      verificationSent:
+        'A new verification link has been sent to your email address.',
+      save: 'Save',
+      saved: 'Saved.',
+    },
+    password: {
+      title: 'Update Password',
+      description:
+        'Ensure your account is using a long, random password to stay secure.',
+      current: 'Current Password',
+      new: 'New Password',
+      confirm: 'Confirm Password',
+      save: 'Save',
+      saved: 'Saved.',
+    },
+    delete: {
+      title: 'Delete Account',
+      description:
+        'Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.',
+      button: 'Delete Account',
+      modal: {
+        title: 'Are you sure you want to delete your account?',
+        description:
+          'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm.',
+        password: 'Password',
+        cancel: 'Cancel',
+        confirm: 'Delete Account',
+      },
+    },
+  },
+  create: {
+    title: 'New activity',
+    pageTitle: 'Add activity',
+    type: 'Activity type',
+    selectType: 'Select type',
+    distance: 'Distance (km)',
+    duration: 'Duration (min)',
+    date: 'Date',
+    notes: 'Notes (optional)',
+    notesPlaceholder: 'Add a note...',
+    submit: 'Save activity',
+  },
+};
