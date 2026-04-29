@@ -12,9 +12,23 @@ export default {
     totalTime: 'Łączny czas',
     avgSpeed: 'Średnia prędkość',
     recentActivities: 'Ostatnie aktywności',
+    seeAll: 'Zobacz wszystkie',
     noActivities: 'Brak aktywności.',
     noData: 'Brak danych do wyświetlenia.',
     last7days: 'Dystans — ostatnie 7 dni',
+    connectTitle: 'Połącz z Garmin Connect',
+    connectDescription:
+      'Zaimportuj swoje aktywności z Garmin Connect, aby zacząć śledzić postępy.',
+    connectButton: 'Połącz z Garmin Connect',
+    garminModal: {
+      title: 'Garmin Connect',
+      description:
+        'Podaj dane logowania do Garmin Connect. Zaimportujemy Twoje ostatnie 1000 aktywności.',
+      email: 'E-mail Garmin',
+      password: 'Hasło Garmin',
+      submit: 'Importuj aktywności',
+      cancel: 'Anuluj',
+    },
   },
   activities: {
     types: {

@@ -13,4 +13,7 @@ export const i18n = createI18n({
   locale: detectLocale(),
   fallbackLocale: 'en',
   messages: { pl, en },
+  missing: (_locale, key) => key.split('.').pop() ?? key,
+  missingWarn: false,
+  fallbackWarn: false,
 });

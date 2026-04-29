@@ -1,8 +1,16 @@
-<script setup>
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+<script setup lang="ts">
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import { Button } from '@/Components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
@@ -24,84 +32,103 @@ const submit = () => {
   <GuestLayout>
     <Head title="Register" />
 
-    <form @submit.prevent="submit">
-      <div>
-        <InputLabel for="name" value="Name" />
+    <div class="mb-6 flex justify-center">
+      <Link href="/">
+        <ApplicationLogo />
+      </Link>
+    </div>
 
-        <TextInput
-          id="name"
-          type="text"
-          class="mt-1 block w-full"
-          v-model="form.name"
-          required
-          autofocus
-          autocomplete="name"
-        />
+    <Card class="w-full sm:w-md">
+      <CardHeader>
+        <CardTitle class="text-xl">Create an account</CardTitle>
+        <CardDescription>Fill in your details to get started</CardDescription>
+      </CardHeader>
 
-        <InputError class="mt-2" :message="form.errors.name" />
-      </div>
+      <CardContent>
+        <form @submit.prevent="submit" class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1.5">
+            <Label for="name">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              v-model="form.name"
+              placeholder="John Doe"
+              required
+              autofocus
+              autocomplete="name"
+            />
+            <p v-if="form.errors.name" class="text-destructive text-sm">
+              {{ form.errors.name }}
+            </p>
+          </div>
 
-      <div class="mt-4">
-        <InputLabel for="email" value="Email" />
+          <div class="flex flex-col gap-1.5">
+            <Label for="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              v-model="form.email"
+              placeholder="you@example.com"
+              required
+              autocomplete="username"
+            />
+            <p v-if="form.errors.email" class="text-destructive text-sm">
+              {{ form.errors.email }}
+            </p>
+          </div>
 
-        <TextInput
-          id="email"
-          type="email"
-          class="mt-1 block w-full"
-          v-model="form.email"
-          required
-          autocomplete="username"
-        />
+          <div class="flex flex-col gap-1.5">
+            <Label for="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              v-model="form.password"
+              placeholder="••••••••"
+              required
+              autocomplete="new-password"
+            />
+            <p v-if="form.errors.password" class="text-destructive text-sm">
+              {{ form.errors.password }}
+            </p>
+          </div>
 
-        <InputError class="mt-2" :message="form.errors.email" />
-      </div>
+          <div class="flex flex-col gap-1.5">
+            <Label for="password_confirmation">Confirm Password</Label>
+            <Input
+              id="password_confirmation"
+              type="password"
+              v-model="form.password_confirmation"
+              placeholder="••••••••"
+              required
+              autocomplete="new-password"
+            />
+            <p
+              v-if="form.errors.password_confirmation"
+              class="text-destructive text-sm"
+            >
+              {{ form.errors.password_confirmation }}
+            </p>
+          </div>
 
-      <div class="mt-4">
-        <InputLabel for="password" value="Password" />
+          <Button
+            type="submit"
+            class="w-full"
+            :class="{ 'opacity-50': form.processing }"
+            :disabled="form.processing"
+          >
+            Register
+          </Button>
+        </form>
+      </CardContent>
 
-        <TextInput
-          id="password"
-          type="password"
-          class="mt-1 block w-full"
-          v-model="form.password"
-          required
-          autocomplete="new-password"
-        />
-
-        <InputError class="mt-2" :message="form.errors.password" />
-      </div>
-
-      <div class="mt-4">
-        <InputLabel for="password_confirmation" value="Confirm Password" />
-
-        <TextInput
-          id="password_confirmation"
-          type="password"
-          class="mt-1 block w-full"
-          v-model="form.password_confirmation"
-          required
-          autocomplete="new-password"
-        />
-
-        <InputError class="mt-2" :message="form.errors.password_confirmation" />
-      </div>
-
-      <div class="mt-4 flex items-center justify-end">
+      <CardFooter class="text-muted-foreground flex justify-center text-sm">
         <Link
           :href="route('login')"
-          class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+          class="hover:text-foreground underline transition-colors"
         >
-          Already registered?
+          Already have an account?
         </Link>
-
-        <PrimaryButton
-          class="ms-4"
-          :class="{ 'opacity-25': form.processing }"
-          :disabled="form.processing"
-        >
-          Register
-        </PrimaryButton>
-      </div>
-    </form>
+      </CardFooter>
+    </Card>
   </GuestLayout>
 </template>

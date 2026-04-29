@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\GarminService;
+use App\Models\User;
+use App\Services\DashboardService;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function __construct(private GarminService $garmin) {}
+    public function __construct(private DashboardService $dashboard) {}
 
     public function __invoke()
     {
-        $garminActivities = $this->garmin->getLastActivity();
+        /** @var User $user */
+        $user = auth()->guard()->user();
 
-        return Inertia::render('Dashboard', $garminActivities);
+        if (! $user->activities()->exists()) {
+            return Inertia::render('Dashboard', ['hasActivities' => false]);
+        }
+
+        return Inertia::render('Dashboard', $this->dashboard->getData($user));
     }
 }

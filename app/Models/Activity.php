@@ -10,7 +10,7 @@ class Activity extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'type', 'distance', 'duration', 'date', 'notes', 'weather_json',
+        'user_id', 'type', 'distance', 'duration', 'avg_speed', 'date', 'notes',
     ];
 
     public function user()
