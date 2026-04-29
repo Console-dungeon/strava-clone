@@ -12,9 +12,23 @@ export default {
     totalTime: 'Total time',
     avgSpeed: 'Average speed',
     recentActivities: 'Recent activities',
+    seeAll: 'See all',
     noActivities: 'No activities yet.',
     noData: 'No data to display.',
     last7days: 'Distance — last 7 days',
+    connectTitle: 'Connect with Garmin Connect',
+    connectDescription:
+      'Import your activities from Garmin Connect to start tracking your progress.',
+    connectButton: 'Connect with Garmin Connect',
+    garminModal: {
+      title: 'Garmin Connect',
+      description:
+        'Enter your Garmin Connect credentials. We will import your last 1000 activities.',
+      email: 'Garmin email',
+      password: 'Garmin password',
+      submit: 'Import activities',
+      cancel: 'Cancel',
+    },
   },
   activities: {
     types: {

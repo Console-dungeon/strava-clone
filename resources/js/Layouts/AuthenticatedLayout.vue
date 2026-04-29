@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { useDark, useToggle } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
@@ -17,6 +17,10 @@ import { Menu, Moon, Sun, X } from 'lucide-vue-next';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { useLocale } from '@/composables/useLocale';
 import { useI18n } from 'vue-i18n';
+
+import { Toaster } from '@/Components/ui/sonner';
+import { toast } from 'vue-sonner';
+import 'vue-sonner/style.css';
 
 const { t } = useI18n();
 const { currentLocale, toggleLocale } = useLocale();
@@ -38,6 +42,17 @@ const showingNavigationDropdown = ref(false);
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
+
+watch(
+  () => page.flash.toast,
+  (value) => {
+    if (!value) return;
+    if (value.type === 'success') toast.success(value.message);
+    else if (value.type === 'error') toast.error(value.message);
+    else toast(value.message);
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -53,7 +68,6 @@ const toggleDark = useToggle(isDark);
             <Link :href="route('dashboard')" class="flex items-center">
               <ApplicationLogo class="text-primary h-8 w-auto" />
             </Link>
-
             <!-- Desktop Navigation -->
             <div class="hidden items-center gap-1 sm:flex">
               <Link
@@ -249,5 +263,7 @@ const toggleDark = useToggle(isDark);
     <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <slot />
     </main>
+
+    <Toaster :theme="isDark ? 'dark' : 'light'" position="top-right" />
   </div>
 </template>
