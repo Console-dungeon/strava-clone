@@ -44,6 +44,7 @@ Pre-commit hooks run `pnpm lint-staged` automatically (Husky). DO NOT BYPASS WIT
 ```
 app/
 ├── Http/Controllers/    # Route handlers — thin, delegate to Services
+│   └── Auth/            # Laravel Breeze auth controllers — do not modify
 ├── Http/Requests/       # Form request validation
 ├── Models/              # Eloquent: User, Activity
 ├── Services/            # Business logic: GarminService, DashboardService
@@ -51,6 +52,10 @@ app/
 ```
 
 **Pattern:** Controllers stay thin — business logic goes in Services.
+
+**Auth:** Laravel Breeze (login, register, password reset, email verification). Controllers in `app/Http/Controllers/Auth/`, pages in `resources/js/Pages/Auth/`. The auth system is complete — do not reimplement it.
+
+**`ActivityController::main()`** — dedicated list view at `/activities/main` with pagination and type filtering (`?type=running`). Use this route/method rather than reimplementing.
 
 **Inertia.js** bridges Laravel routes and Vue pages. Backend returns `Inertia::render('PageName', $props)`, not JSON. Do not create separate REST API endpoints unless specifically asked.
 
@@ -61,14 +66,16 @@ resources/js/
 ├── Pages/          # Inertia page components (map 1:1 to routes)
 ├── Components/     # Reusable Vue components
 │   └── ui/         # Reka UI / shadcn-vue primitives — DO NOT edit
-├── Layouts/        # Layout components (AppLayout, AuthLayout)
-├── i18n/           # Translation files: pl.json, en.json
+├── Layouts/        # Layout components (AppLayout, GuestLayout)
+├── i18n/           # Translation files: pl.ts, en.ts, index.ts
 └── app.ts          # Entry point
 ```
 
 **Always use `<script setup lang="ts">`** — no Options API, no `defineComponent`.
 
 Path alias `@/` maps to `resources/js/`.
+
+**Available UI primitives** (`@/Components/ui/` — do not edit, extend/wrap instead): `Avatar`, `Button`, `Card`, `Chart`, `Dialog`, `DropdownMenu`, `Input`, `Label`, `NavigationMenu`, `Sonner`, `Spinner`, `Table`.
 
 ### Database
 
@@ -97,7 +104,7 @@ When adding columns/tables: always write a new migration, never edit existing on
 - **Tailwind CSS v4** — use utility classes; no custom CSS unless unavoidable
 - **Tailwind Merge** (`twMerge`/`cn`) for conditional class merging
 - **Lucide Vue** for icons — import from `lucide-vue-next`
-- **Vue i18n** — use `$t('key')` in templates, `t('key')` in `<script setup>`. Add keys to both `pl.json` and `en.json`
+- **Vue i18n** — use `$t('key')` in templates, `t('key')` in `<script setup>`. Add keys to both `resources/js/i18n/pl.ts` and `en.ts` (TypeScript exports, not JSON). Loaded via `resources/js/i18n/index.ts`
 - **Vue Sonner** for toast notifications
 - **Unovis** for charts (line charts on dashboard)
 - **TanStack Vue Table** for data tables
@@ -118,8 +125,10 @@ When adding columns/tables: always write a new migration, never edit existing on
 
 ## Key Patterns & Gotchas
 
-- **Garmin import** — `GarminService` uses `alexoid/laravel-garmin`. Credentials go in `.env`, never in code.
-- **i18n** — App locale is `pl` by default (`APP_LOCALE=pl`). Every user-visible string needs a translation key in both `resources/js/i18n/pl.json` and `en.json`.
+- **Garmin import** — `GarminService` uses `alexoid/laravel-garmin`. Always instantiate directly in the controller: `new GarminService($user->garmin_email, $user->garmin_password)` — the AppServiceProvider singleton is broken (missing constructor args). Speed values from Garmin are in m/s — multiply × 3.6 for km/h. Import limit: 1000 activities.
+- **Toast / flash notifications** — backend: `Inertia::flash('toast', ['type' => 'success', 'message' => '...'])`. Frontend reads from `usePage().props.flash`, handled in `AppLayout`. Do not build a custom flash system.
+- **Shared props** — `HandleInertiaRequests` middleware exposes `auth.user` to every Inertia page. Access it in Vue via `usePage().props.auth.user`.
+- **i18n** — App locale is `pl` by default (`APP_LOCALE=pl`). Every user-visible string needs a translation key in both `resources/js/i18n/pl.ts` and `en.ts`.
 - **Dark mode** — Tailwind dark mode is in use. New UI components must support both light and dark variants.
 - **shadcn-vue components** (`@/Components/ui/`) are excluded from ESLint. Do not modify them directly — extend or wrap instead.
 - **Activity scoping** — every query on the `activities` table must be scoped to the authenticated user (`Activity::where('user_id', auth()->id())`).
