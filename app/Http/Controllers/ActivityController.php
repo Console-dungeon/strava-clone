@@ -78,6 +78,8 @@ class ActivityController extends Controller
 
         auth()->user()->activities()->create($data);
 
+        ActivityLogger::log(ActivityLogger::ACTIVITY_CREATED);
+
         return redirect()->route('dashboard');
     }
 
@@ -139,6 +141,8 @@ class ActivityController extends Controller
         abort_if($activity->user_id !== auth()->id(), 403);
 
         $activity->delete();
+
+        ActivityLogger::log(ActivityLogger::ACTIVITY_DELETED);
 
         return redirect()->back();
     }
