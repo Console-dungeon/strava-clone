@@ -17,4 +17,9 @@ class Activity extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function gpx()
+    {
+        return $this->hasOne(ActivityGpx::class);
+    }
 }

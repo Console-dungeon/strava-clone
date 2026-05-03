@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
+import { Map } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import ActivityMap from '@/Components/ActivityMap.vue';
 import Modal from '@/Components/Modal.vue';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
@@ -25,12 +27,19 @@ import {
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { ChevronDown, Trash2 } from 'lucide-vue-next';
 
+interface RoutePoint {
+  lat: number;
+  lng: number;
+  ele?: number;
+}
+
 interface Activity {
   id: number;
   date: string;
   type: string;
   distance: number;
-  duration: number;
+  duration: string;
+  has_gpx: boolean;
 }
 
 interface Paginator {
@@ -94,6 +103,33 @@ function confirmDelete() {
     onFinish: () => (confirmingId.value = null),
   });
 }
+
+// GPX map panel
+const mapActivityId = ref<number | null>(null);
+const routePoints = ref<RoutePoint[]>([]);
+const mapLoading = ref(false);
+
+async function toggleMap(activity: Activity) {
+  if (mapActivityId.value === activity.id) {
+    mapActivityId.value = null;
+    routePoints.value = [];
+    return;
+  }
+
+  mapActivityId.value = activity.id;
+  routePoints.value = [];
+  mapLoading.value = true;
+
+  try {
+    const res = await fetch(route('activities.gpx-data', activity.id), {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const data = (await res.json()) as { route_points: RoutePoint[] };
+    routePoints.value = data.route_points;
+  } finally {
+    mapLoading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -118,19 +154,19 @@ function confirmDelete() {
                   :model-value="filters.type ?? ''"
                   @update:model-value="(v) => setType(v as string | null)"
                 >
-                  <DropdownMenuRadioItem value=""
-                    >Wszystkie</DropdownMenuRadioItem
-                  >
+                  <DropdownMenuRadioItem value="">{{
+                    t('activities.all')
+                  }}</DropdownMenuRadioItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuRadioItem value="running"
-                    >Bieg</DropdownMenuRadioItem
-                  >
-                  <DropdownMenuRadioItem value="cycling"
-                    >Rower</DropdownMenuRadioItem
-                  >
-                  <DropdownMenuRadioItem value="swimming"
-                    >Pływanie</DropdownMenuRadioItem
-                  >
+                  <DropdownMenuRadioItem value="running">{{
+                    t('activities.types.running')
+                  }}</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="cycling">{{
+                    t('activities.types.cycling')
+                  }}</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="swimming">{{
+                    t('activities.types.swimming')
+                  }}</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -156,25 +192,63 @@ function confirmDelete() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow
+                  <template
                     v-for="activity in activities.data"
                     :key="activity.id"
                   >
-                    <TableCell>{{ activity.date }}</TableCell>
-                    <TableCell>{{
-                      types[activity.type] ?? activity.type
-                    }}</TableCell>
-                    <TableCell>{{ activity.distance }} km</TableCell>
-                    <TableCell>{{ activity.duration }}</TableCell>
-                    <TableCell class="text-right">
-                      <button
-                        class="text-muted-foreground hover:text-destructive transition-colors"
-                        @click="askDelete(activity.id)"
-                      >
-                        <Trash2 class="h-4 w-4" />
-                      </button>
-                    </TableCell>
-                  </TableRow>
+                    <TableRow>
+                      <TableCell>{{ activity.date }}</TableCell>
+                      <TableCell>{{
+                        types[activity.type] ?? activity.type
+                      }}</TableCell>
+                      <TableCell>{{ activity.distance }} km</TableCell>
+                      <TableCell>{{ activity.duration }}</TableCell>
+                      <TableCell class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                          <button
+                            v-if="activity.has_gpx"
+                            class="text-muted-foreground hover:text-primary transition-colors"
+                            :class="{
+                              'text-primary': mapActivityId === activity.id,
+                            }"
+                            :title="t('activities.showMap')"
+                            @click="toggleMap(activity)"
+                          >
+                            <Map class="h-4 w-4" />
+                          </button>
+                          <button
+                            class="text-muted-foreground hover:text-destructive transition-colors"
+                            @click="askDelete(activity.id)"
+                          >
+                            <Trash2 class="h-4 w-4" />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+
+                    <TableRow v-if="mapActivityId === activity.id">
+                      <TableCell colspan="5" class="p-0">
+                        <div class="p-4">
+                          <div
+                            v-if="mapLoading"
+                            class="text-muted-foreground flex h-64 items-center justify-center text-sm"
+                          >
+                            {{ t('activities.mapLoading') }}
+                          </div>
+                          <ActivityMap
+                            v-else-if="routePoints.length > 0"
+                            :route-points="routePoints"
+                          />
+                          <div
+                            v-else
+                            class="text-muted-foreground flex h-64 items-center justify-center text-sm"
+                          >
+                            {{ t('activities.mapNoData') }}
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </template>
                 </TableBody>
               </Table>
 
@@ -204,6 +278,7 @@ function confirmDelete() {
         </Card>
       </div>
     </div>
+
     <Modal :show="confirmingId !== null" max-width="sm" @close="cancelDelete">
       <div class="p-6">
         <h2 class="text-lg font-semibold">
