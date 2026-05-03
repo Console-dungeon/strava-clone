@@ -92,6 +92,7 @@ When adding columns/tables: always write a new migration, never edit existing on
 - PHP 8.5 features are available (typed properties, match, fibers, etc.)
 - Use Laravel 12 conventions — check official docs for newer APIs
 - Eloquent relationships: `User` hasMany `Activity`; always scope activity queries to `auth()->user()`
+- **Pobieranie ID zalogowanego użytkownika:** używaj `auth()->guard()->id()` (a dla obiektu — `auth()->guard()->user()`). To jest przyjęta w projekcie poprawna forma — nie zastępuj jej skrótem `auth()->id()` / `auth()->user()`.
 - Form validation in `Http/Requests/` classes, not inline in controllers
 - Queue driver: `database` (local), `sync` (tests)
 - Session/cache driver: `database` (local), `array` (tests)

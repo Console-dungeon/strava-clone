@@ -24,20 +24,24 @@ class GarminService
 
     public function importActivities(User $user, int $limit = 1000): int
     {
+        ActivityLogger::log(ActivityLogger::GARMIN_SYNC_STARTED, $user->id);
+
         $garminActivities = $this->garmin->getActivities(0, $limit);
         $count = 0;
 
         foreach ($garminActivities as $activity) {
             $user->activities()->create([
-                'type'      => $activity['activityType']['typeKey'] ?? 'other',
-                'distance'  => round(($activity['distance'] ?? 0) / 1000, 2),
-                'duration'  => (int) (($activity['duration'] ?? 0) / 60),
+                'type' => $activity['activityType']['typeKey'] ?? 'other',
+                'distance' => round(($activity['distance'] ?? 0) / 1000, 2),
+                'duration' => (int) (($activity['duration'] ?? 0) / 60),
                 'avg_speed' => round(($activity['averageSpeed'] ?? 0) * 3.6, 2),
-                'date'      => Carbon::parse($activity['startTimeGMT'])->toDateString(),
-                'notes'     => null,
+                'date' => Carbon::parse($activity['startTimeGMT'])->toDateString(),
+                'notes' => null,
             ]);
             $count++;
         }
+
+        ActivityLogger::log(ActivityLogger::GARMIN_SYNC_COMPLETED, $user->id);
 
         return $count;
     }
