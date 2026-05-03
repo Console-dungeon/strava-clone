@@ -47,6 +47,9 @@ export default {
     of: 'z',
     noActivities: 'Brak aktywności.',
     recentActivities: 'Ostatnie aktywności',
+    showMap: 'Pokaż mapę',
+    mapLoading: 'Ładowanie mapy...',
+    mapNoData: 'Brak danych trasy.',
     delete: {
       title: 'Usuń aktywność',
       message:
@@ -105,5 +108,14 @@ export default {
     notes: 'Notatka (opcjonalnie)',
     notesPlaceholder: 'Dodaj notatkę...',
     submit: 'Zapisz aktywność',
+    tabManual: 'Ręcznie',
+    tabGpx: 'Import GPX',
+    gpxFile: 'Plik GPX',
+    gpxHint: 'Dystans, czas i data zostaną wczytane automatycznie.',
+    gpxImport: 'Importuj z GPX',
+    gpxImporting: 'Importowanie...',
+    gpxTypeAuto: 'Wykryj automatycznie z pliku',
+    gpxTypeHint:
+      'Typ zostanie wczytany z pliku GPX. Wybierz ręcznie tylko jeśli nie zostanie wykryty.',
   },
 };

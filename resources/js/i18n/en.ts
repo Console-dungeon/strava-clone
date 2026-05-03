@@ -47,6 +47,9 @@ export default {
     of: 'of',
     noActivities: 'No activities yet.',
     recentActivities: 'Recent activities',
+    showMap: 'Show map',
+    mapLoading: 'Loading map...',
+    mapNoData: 'No route data available.',
     delete: {
       title: 'Delete activity',
       message:
@@ -106,5 +109,14 @@ export default {
     notes: 'Notes (optional)',
     notesPlaceholder: 'Add a note...',
     submit: 'Save activity',
+    tabManual: 'Manual',
+    tabGpx: 'Import GPX',
+    gpxFile: 'GPX file',
+    gpxHint: 'Distance, duration and date will be read automatically.',
+    gpxImport: 'Import from GPX',
+    gpxImporting: 'Importing...',
+    gpxTypeAuto: 'Auto-detect from file',
+    gpxTypeHint:
+      'Activity type will be read from the GPX file. Select manually only if not detected.',
   },
 };

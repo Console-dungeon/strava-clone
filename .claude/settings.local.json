@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /var/www/html -maxdepth 1 \\\\\\( -name \"webpack.mix.js\" -o -name \".env.example\" \\\\\\) -exec cat {} \\\\;)",
+      "Bash(composer show:*)"
+    ]
+  }
+}
