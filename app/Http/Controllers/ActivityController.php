@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Alexoid\GarminConnect\GarminConnect;
+use Alexoid\GarminConnect\TokenStore\LaravelCacheTokenStore;
 use App\Models\Activity;
+use App\Models\ActivityGpx;
+use App\Services\ActivityLogger;
 use App\Services\GpxParser;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -38,18 +42,33 @@ class ActivityController extends Controller
         return $mins > 0 ? "{$hours}h {$mins}min" : "{$hours}h";
     }
 
+    private function formatPace(int $minutes, float $distance): ?string
+    {
+        if ($distance <= 0) {
+            return null;
+        }
+
+        $paceSeconds = ($minutes * 60) / $distance;
+        $paceMin = (int) ($paceSeconds / 60);
+        $paceSec = (int) ($paceSeconds % 60);
+
+        return sprintf('%d:%02d /km', $paceMin, $paceSec);
+    }
+
     public function main(Request $request)
     {
         $user = auth()->user();
         $type = $request->query('type');
 
         return Inertia::render('Activities/Main', [
+            'garmin_connected' => (bool) $user->garmin_email,
             'stats' => [
                 'distance' => $user->activities()->sum('distance'),
                 'duration' => $user->activities()->sum('duration'),
                 'avgSpeed' => 0,
             ],
             'activities' => $user->activities()
+                ->with('gpx')
                 ->when($type, fn ($q) => $q->where('type', $type))
                 ->orderBy('date', 'desc')
                 ->paginate(15)
@@ -59,7 +78,13 @@ class ActivityController extends Controller
                     'type' => $a->type,
                     'distance' => $a->distance,
                     'duration' => $this->formatDuration($a->duration),
-                    'has_gpx' => $a->gpx()->exists(),
+                    'has_map' => $a->gpx !== null || $a->garmin_activity_id !== null,
+                    'avg_hr' => $a->avg_hr,
+                    'max_hr' => $a->max_hr,
+                    'avg_speed' => $a->avg_speed,
+                    'max_speed' => $a->max_speed,
+                    'avg_pace' => $this->formatPace($a->duration, (float) $a->distance),
+                    'calories' => $a->calories,
                 ])
                 ->appends($request->query()),
             'filters' => ['type' => $type],
@@ -124,16 +149,43 @@ class ActivityController extends Controller
     {
         abort_if($activity->user_id !== auth()->id(), 403);
 
-        $gpx = $activity->gpx;
+        if ($activity->gpx) {
+            return response()->json([
+                'route_points' => $activity->gpx->route_points,
+                'elevation_gain' => $activity->gpx->elevation_gain,
+            ]);
+        }
 
-        if (! $gpx) {
+        if (! $activity->garmin_activity_id) {
             return response()->json(['route_points' => [], 'elevation_gain' => null]);
         }
 
-        return response()->json([
-            'route_points' => $gpx->route_points,
-            'elevation_gain' => $gpx->elevation_gain,
+        $userId = auth()->guard()->id();
+        $garmin = new GarminConnect(
+            email: '',
+            password: '',
+            tokenStore: new LaravelCacheTokenStore(prefix: "garmin_tokens_{$userId}_")
+        );
+        $garmin->login();
+
+        $details = $garmin->getActivityDetails($activity->garmin_activity_id);
+        $rawPoints = $details['geoPolylineDTO']['polyline'] ?? [];
+
+        if (empty($rawPoints)) {
+            return response()->json(['route_points' => [], 'elevation_gain' => null]);
+        }
+
+        $routePoints = array_map(fn ($p) => [
+            'lat' => $p['lat'],
+            'lng' => $p['lon'],
+        ], $rawPoints);
+
+        ActivityGpx::create([
+            'activity_id' => $activity->id,
+            'route_points' => $routePoints,
         ]);
+
+        return response()->json(['route_points' => $routePoints, 'elevation_gain' => null]);
     }
 
     public function destroy(Activity $activity)

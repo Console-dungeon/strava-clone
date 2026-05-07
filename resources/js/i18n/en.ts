@@ -47,9 +47,23 @@ export default {
     of: 'of',
     noActivities: 'No activities yet.',
     recentActivities: 'Recent activities',
+    garminSync: 'Sync Garmin',
+    garminSyncing: 'Syncing...',
     showMap: 'Show map',
     mapLoading: 'Loading map...',
     mapNoData: 'No route data available.',
+    details: {
+      avgHr: 'Avg. HR',
+      maxHr: 'Max HR',
+      avgPace: 'Avg. pace',
+      avgSpeed: 'Avg. speed',
+      maxSpeed: 'Max speed',
+      calories: 'Calories',
+      bpm: 'bpm',
+      kmh: 'km/h',
+      kcal: 'kcal',
+      noData: '—',
+    },
     delete: {
       title: 'Delete activity',
       message:

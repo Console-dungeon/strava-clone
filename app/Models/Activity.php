@@ -10,7 +10,8 @@ class Activity extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'type', 'distance', 'duration', 'avg_speed', 'date', 'notes',
+        'user_id', 'type', 'distance', 'duration', 'avg_speed', 'date', 'notes', 'garmin_activity_id',
+        'avg_hr', 'max_hr', 'max_speed', 'calories',
     ];
 
     public function user()
