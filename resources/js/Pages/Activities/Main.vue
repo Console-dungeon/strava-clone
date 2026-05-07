@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { Map } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -25,7 +24,15 @@ import {
   TableRow,
 } from '@/Components/ui/table';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { ChevronDown, Trash2 } from 'lucide-vue-next';
+import {
+  ChevronDown,
+  Flame,
+  Gauge,
+  Heart,
+  Timer,
+  Trash2,
+  Zap,
+} from 'lucide-vue-next';
 
 interface RoutePoint {
   lat: number;
@@ -39,7 +46,13 @@ interface Activity {
   type: string;
   distance: number;
   duration: string;
-  has_gpx: boolean;
+  has_map: boolean;
+  avg_hr: number | null;
+  max_hr: number | null;
+  avg_speed: number | null;
+  max_speed: number | null;
+  avg_pace: string | null;
+  calories: number | null;
 }
 
 interface Paginator {
@@ -130,6 +143,56 @@ async function toggleMap(activity: Activity) {
     mapLoading.value = false;
   }
 }
+
+const d = t('activities.details.noData');
+
+interface StatCard {
+  label: string;
+  value: string | null;
+  unit: string;
+  icon: typeof Heart;
+}
+
+function buildStatCards(activity: Activity): StatCard[] {
+  return [
+    {
+      label: t('activities.details.avgHr'),
+      value: activity.avg_hr != null ? String(activity.avg_hr) : null,
+      unit: t('activities.details.bpm'),
+      icon: Heart,
+    },
+    {
+      label: t('activities.details.maxHr'),
+      value: activity.max_hr != null ? String(activity.max_hr) : null,
+      unit: t('activities.details.bpm'),
+      icon: Heart,
+    },
+    {
+      label: t('activities.details.avgPace'),
+      value: activity.avg_pace ?? null,
+      unit: '',
+      icon: Timer,
+    },
+    {
+      label: t('activities.details.avgSpeed'),
+      value: activity.avg_speed != null ? activity.avg_speed.toFixed(1) : null,
+      unit: t('activities.details.kmh'),
+      icon: Gauge,
+    },
+    {
+      label: t('activities.details.maxSpeed'),
+      value: activity.max_speed != null ? activity.max_speed.toFixed(1) : null,
+      unit: t('activities.details.kmh'),
+      icon: Zap,
+    },
+    {
+      label: t('activities.details.calories'),
+      value: activity.calories != null ? String(activity.calories) : null,
+      unit: t('activities.details.kcal'),
+      icon: Flame,
+    },
+  ];
+}
 </script>
 
 <template>
@@ -196,7 +259,11 @@ async function toggleMap(activity: Activity) {
                     v-for="activity in activities.data"
                     :key="activity.id"
                   >
-                    <TableRow>
+                    <TableRow
+                      class="cursor-pointer select-none"
+                      :class="{ 'bg-muted/40': mapActivityId === activity.id }"
+                      @click="toggleMap(activity)"
+                    >
                       <TableCell>{{ activity.date }}</TableCell>
                       <TableCell>{{
                         types[activity.type] ?? activity.type
@@ -204,46 +271,72 @@ async function toggleMap(activity: Activity) {
                       <TableCell>{{ activity.distance }} km</TableCell>
                       <TableCell>{{ activity.duration }}</TableCell>
                       <TableCell class="text-right">
-                        <div class="flex items-center justify-end gap-2">
-                          <button
-                            v-if="activity.has_gpx"
-                            class="text-muted-foreground hover:text-primary transition-colors"
-                            :class="{
-                              'text-primary': mapActivityId === activity.id,
-                            }"
-                            :title="t('activities.showMap')"
-                            @click="toggleMap(activity)"
-                          >
-                            <Map class="h-4 w-4" />
-                          </button>
-                          <button
-                            class="text-muted-foreground hover:text-destructive transition-colors"
-                            @click="askDelete(activity.id)"
-                          >
-                            <Trash2 class="h-4 w-4" />
-                          </button>
-                        </div>
+                        <button
+                          class="text-muted-foreground hover:text-destructive transition-colors"
+                          @click.stop="askDelete(activity.id)"
+                        >
+                          <Trash2 class="h-4 w-4" />
+                        </button>
                       </TableCell>
                     </TableRow>
 
                     <TableRow v-if="mapActivityId === activity.id">
                       <TableCell colspan="5" class="p-0">
-                        <div class="p-4">
-                          <div
-                            v-if="mapLoading"
-                            class="text-muted-foreground flex h-64 items-center justify-center text-sm"
-                          >
-                            {{ t('activities.mapLoading') }}
+                        <div class="flex gap-4 p-4">
+                          <!-- Map (left half) -->
+                          <div class="min-w-0 flex-1">
+                            <div
+                              v-if="mapLoading"
+                              class="text-muted-foreground flex h-64 items-center justify-center text-sm"
+                            >
+                              {{ t('activities.mapLoading') }}
+                            </div>
+                            <ActivityMap
+                              v-else-if="routePoints.length > 0"
+                              :route-points="routePoints"
+                            />
+                            <div
+                              v-else
+                              class="text-muted-foreground flex h-64 items-center justify-center rounded-lg border text-sm"
+                            >
+                              {{ t('activities.mapNoData') }}
+                            </div>
                           </div>
-                          <ActivityMap
-                            v-else-if="routePoints.length > 0"
-                            :route-points="routePoints"
-                          />
-                          <div
-                            v-else
-                            class="text-muted-foreground flex h-64 items-center justify-center text-sm"
-                          >
-                            {{ t('activities.mapNoData') }}
+
+                          <!-- Stats (right half) -->
+                          <div class="w-1/2 shrink-0">
+                            <div class="grid grid-cols-2 gap-3">
+                              <div
+                                v-for="card in buildStatCards(activity)"
+                                :key="card.label"
+                                class="bg-muted/40 flex flex-col gap-1 rounded-lg p-3"
+                              >
+                                <div
+                                  class="text-muted-foreground flex items-center gap-1.5 text-xs"
+                                >
+                                  <component
+                                    :is="card.icon"
+                                    class="h-3.5 w-3.5"
+                                  />
+                                  {{ card.label }}
+                                </div>
+                                <div class="text-sm font-semibold">
+                                  <span v-if="card.value != null">
+                                    {{ card.value
+                                    }}<span
+                                      v-if="card.unit"
+                                      class="text-muted-foreground ml-1 text-xs font-normal"
+                                      >{{ card.unit }}</span
+                                    >
+                                  </span>
+                                  <span
+                                    v-else
+                                    class="text-muted-foreground font-normal"
+                                    >{{ d }}</span
+                                  >
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </TableCell>

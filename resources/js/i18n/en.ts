@@ -50,6 +50,18 @@ export default {
     showMap: 'Show map',
     mapLoading: 'Loading map...',
     mapNoData: 'No route data available.',
+    details: {
+      avgHr: 'Avg. HR',
+      maxHr: 'Max HR',
+      avgPace: 'Avg. pace',
+      avgSpeed: 'Avg. speed',
+      maxSpeed: 'Max speed',
+      calories: 'Calories',
+      bpm: 'bpm',
+      kmh: 'km/h',
+      kcal: 'kcal',
+      noData: '—',
+    },
     delete: {
       title: 'Delete activity',
       message:

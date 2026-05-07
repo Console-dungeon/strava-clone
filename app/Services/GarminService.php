@@ -37,6 +37,11 @@ class GarminService
                 'avg_speed' => round(($activity['averageSpeed'] ?? 0) * 3.6, 2),
                 'date' => Carbon::parse($activity['startTimeGMT'])->toDateString(),
                 'notes' => null,
+                'garmin_activity_id' => (string) $activity['activityId'],
+                'avg_hr' => isset($activity['averageHR']) ? (int) $activity['averageHR'] : null,
+                'max_hr' => isset($activity['maxHR']) ? (int) $activity['maxHR'] : null,
+                'max_speed' => isset($activity['maxSpeed']) ? round($activity['maxSpeed'] * 3.6, 2) : null,
+                'calories' => isset($activity['calories']) ? (int) $activity['calories'] : null,
             ]);
             $count++;
         }

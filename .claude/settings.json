@@ -1,5 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(pnpm run *)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
@@ -12,11 +18,6 @@
           }
         ]
       }
-    ]
-  },
-  "permissions": {
-    "allow": [
-      "Bash(php artisan *)"
     ]
   }
 }

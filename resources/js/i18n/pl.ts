@@ -50,6 +50,18 @@ export default {
     showMap: 'Pokaż mapę',
     mapLoading: 'Ładowanie mapy...',
     mapNoData: 'Brak danych trasy.',
+    details: {
+      avgHr: 'Śr. tętno',
+      maxHr: 'Maks. tętno',
+      avgPace: 'Śr. tempo',
+      avgSpeed: 'Śr. prędkość',
+      maxSpeed: 'Maks. prędkość',
+      calories: 'Kalorie',
+      bpm: 'bpm',
+      kmh: 'km/h',
+      kcal: 'kcal',
+      noData: '—',
+    },
     delete: {
       title: 'Usuń aktywność',
       message:
