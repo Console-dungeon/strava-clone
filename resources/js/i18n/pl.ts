@@ -47,6 +47,8 @@ export default {
     of: 'z',
     noActivities: 'Brak aktywności.',
     recentActivities: 'Ostatnie aktywności',
+    garminSync: 'Synchronizuj Garmin',
+    garminSyncing: 'Synchronizacja...',
     showMap: 'Pokaż mapę',
     mapLoading: 'Ładowanie mapy...',
     mapNoData: 'Brak danych trasy.',

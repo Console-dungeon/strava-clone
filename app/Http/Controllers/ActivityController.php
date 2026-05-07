@@ -61,6 +61,7 @@ class ActivityController extends Controller
         $type = $request->query('type');
 
         return Inertia::render('Activities/Main', [
+            'garmin_connected' => (bool) $user->garmin_email,
             'stats' => [
                 'distance' => $user->activities()->sum('distance'),
                 'duration' => $user->activities()->sum('duration'),

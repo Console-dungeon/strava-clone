@@ -29,6 +29,7 @@ import {
   Flame,
   Gauge,
   Heart,
+  RefreshCw,
   Timer,
   Trash2,
   Zap,
@@ -73,6 +74,7 @@ const props = defineProps<{
   stats: Stats;
   activities: Paginator;
   filters: { type: string | null };
+  garmin_connected: boolean;
 }>();
 
 const { t } = useI18n();
@@ -115,6 +117,17 @@ function confirmDelete() {
     preserveScroll: true,
     onFinish: () => (confirmingId.value = null),
   });
+}
+
+const syncing = ref(false);
+
+function syncGarmin() {
+  syncing.value = true;
+  router.post(
+    route('garmin.sync'),
+    {},
+    { onFinish: () => (syncing.value = false) },
+  );
 }
 
 // GPX map panel
@@ -205,34 +218,54 @@ function buildStatCards(activity: Activity): StatCard[] {
           <CardHeader class="flex flex-row items-center justify-between">
             <CardTitle>{{ t('activities.recentActivities') }}</CardTitle>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child>
-                <Button variant="outline" size="sm">
-                  {{ filterLabel() }}
-                  <ChevronDown class="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuRadioGroup
-                  :model-value="filters.type ?? ''"
-                  @update:model-value="(v) => setType(v as string | null)"
-                >
-                  <DropdownMenuRadioItem value="">{{
-                    t('activities.all')
-                  }}</DropdownMenuRadioItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioItem value="running">{{
-                    t('activities.types.running')
-                  }}</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="cycling">{{
-                    t('activities.types.cycling')
-                  }}</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="swimming">{{
-                    t('activities.types.swimming')
-                  }}</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div class="flex items-center gap-2">
+              <Button
+                v-if="garmin_connected"
+                variant="outline"
+                size="sm"
+                :disabled="syncing"
+                @click="syncGarmin"
+              >
+                <RefreshCw
+                  class="mr-1.5 h-4 w-4"
+                  :class="{ 'animate-spin': syncing }"
+                />
+                {{
+                  syncing
+                    ? t('activities.garminSyncing')
+                    : t('activities.garminSync')
+                }}
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <Button variant="outline" size="sm">
+                    {{ filterLabel() }}
+                    <ChevronDown class="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuRadioGroup
+                    :model-value="filters.type ?? ''"
+                    @update:model-value="(v) => setType(v as string | null)"
+                  >
+                    <DropdownMenuRadioItem value="">{{
+                      t('activities.all')
+                    }}</DropdownMenuRadioItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuRadioItem value="running">{{
+                      t('activities.types.running')
+                    }}</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="cycling">{{
+                      t('activities.types.cycling')
+                    }}</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="swimming">{{
+                      t('activities.types.swimming')
+                    }}</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </CardHeader>
 
           <CardContent>

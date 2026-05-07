@@ -19,16 +19,17 @@ class GarminImportController extends Controller
         /** @var User $user */
         $user = auth()->guard()->user();
 
-        if ($user->activities()->exists()) {
-            return back()->withErrors(['import' => 'Aktywności już zostały zaimportowane.']);
-        }
-
         try {
-            $service = new GarminService($data['email'], $data['password']);
-            $service->importActivities($user);
+            $service = new GarminService($data['email'], $data['password'], $user->id);
+            $service->syncActivities($user, 1000);
         } catch (\Exception) {
             return back()->withErrors(['email' => 'Nieprawidłowe dane logowania Garmin Connect.']);
         }
+
+        $user->update([
+            'garmin_email' => $data['email'],
+            'garmin_password' => $data['password'],
+        ]);
 
         Inertia::flash('toast', [
             'type' => 'success',

@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'garmin_email',
+        'garmin_password',
     ];
 
     /**
@@ -43,11 +45,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'garmin_password' => 'encrypted',
         ];
     }
 
     public function activities()
     {
-    return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class);
     }
 }

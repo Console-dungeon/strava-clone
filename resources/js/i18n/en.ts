@@ -47,6 +47,8 @@ export default {
     of: 'of',
     noActivities: 'No activities yet.',
     recentActivities: 'Recent activities',
+    garminSync: 'Sync Garmin',
+    garminSyncing: 'Syncing...',
     showMap: 'Show map',
     mapLoading: 'Loading map...',
     mapNoData: 'No route data available.',

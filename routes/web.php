@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GarminImportController;
+use App\Http\Controllers\GarminSyncController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/activities/{activity}/gpx-data', [ActivityController::class, 'gpxData'])->name('activities.gpx-data');
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
     Route::post('/garmin/import', GarminImportController::class)->name('garmin.import');
+    Route::post('/garmin/sync', GarminSyncController::class)->name('garmin.sync');
 });
 
 require __DIR__.'/auth.php';
