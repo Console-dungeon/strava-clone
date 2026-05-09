@@ -3,7 +3,10 @@
   "permissions": {
     "allow": [
       "Bash(php artisan *)",
-      "Bash(pnpm run *)"
+      "Bash(pnpm run *)",
+      "Bash(sudo DEBIAN_FRONTEND=noninteractive apt-get install -y texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-lang-polish texlive-fonts-recommended lmodern)",
+      "Bash(find /usr /opt /home -name \"pdflatex\" 2>/dev/null | head -5 *)",
+      "Read(//usr/**)"
     ]
   },
   "hooks": {
