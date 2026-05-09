@@ -709,8 +709,8 @@ Każda zmiana schematu bazy to osobny, wersjonowany plik migracji Laravel. Histo
 \item \textbf{Kolejkowanie zadań} \\
 Synchronizacja z Garmin wykonywana jest za pośrednictwem kolejki zadań Laravel (driver: \texttt{database}), co pozwala na asynchroniczne wykonywanie długotrwałych operacji bez blokowania odpowiedzi HTTP.
 
-\item \textbf{Cache danych GPX} \\
-Dane GPS dla aktywności Garmin są cache'owane po pierwszym pobraniu, eliminując powtórne zapytania do API Garmin przy kolejnych wyświetleniach mapy.
+\item \textbf{Leniwy zapis danych trasy GPS (lazy persistence)} \\
+Dane trasy GPS dla aktywności Garmin pobierane są z API Garmin tylko przy pierwszym wyświetleniu mapy, a następnie trwale zapisywane w tabeli \texttt{activity\_gpx}. Każde kolejne otwarcie mapy korzysta z bazy danych -- bez ponownego zapytania do API Garmin. Tokeny OAuth Garmin przechowywane są osobno w cache Laravel (\texttt{LaravelCacheTokenStore}).
 
 \end{enumerate}
 
