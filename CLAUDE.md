@@ -81,6 +81,8 @@ Path alias `@/` maps to `resources/js/`.
 
 PostgreSQL 18 in Docker (`sail`/`password`/`strava_clone`). Migrations in `database/migrations/`.
 
+**Adminer** — database GUI available at `http://localhost:8080` (or `$ADMINER_PORT`). Server: `pgsql`, uses dark theme (`pepa-linha-dark`). Defined in `compose.yaml`, depends on the `pgsql` service.
+
 When adding columns/tables: always write a new migration, never edit existing ones.
 
 ---

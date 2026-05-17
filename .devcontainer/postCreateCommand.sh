@@ -1,5 +1,12 @@
 #!/bin/bash
 
+echo "📄 Installing LaTeX tools..."
+sudo apt-get update -qq && sudo apt-get install -y -qq \
+    latexmk \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    texlive-lang-polish \
+    > /dev/null 2>&1
 
 echo "📦 Installing dependencies with pnpm..."
 CI=true pnpm install 

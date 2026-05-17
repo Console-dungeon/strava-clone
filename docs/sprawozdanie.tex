@@ -413,6 +413,7 @@ resources/js/
 \begin{itemize}[noitemsep]
     \item \textbf{PHP/Laravel} -- serwer aplikacji,
     \item \textbf{PostgreSQL 18} -- baza danych,
+    \item \textbf{Adminer} -- graficzny interfejs bazy danych dostępny pod adresem \texttt{http://localhost:8080},
     \item \textbf{Node.js} -- kompilacja frontendu przez Vite.
 \end{itemize}
 
@@ -445,6 +446,8 @@ Projekt wykorzystuje \textbf{PostgreSQL 18} uruchomiony w kontenerze Docker. Dos
 \end{itemize}
 
 Schemat bazy zarządzany jest przez \textbf{Laravel Migrations} -- każda zmiana struktury to osobny, nieodwracalnie numerowany plik migracji.
+
+Do zarządzania bazą danych i inspekcji danych w środowisku deweloperskim służy \textbf{Adminer} -- lekki graficzny interfejs webowy uruchomiony jako osobny kontener Docker. Adminer dostępny jest pod adresem \texttt{http://localhost:8080} (port konfigurowalny przez zmienną środowiskową \texttt{ADMINER\_PORT}). Interfejs skonfigurowany jest z domyślnym serwerem \texttt{pgsql} oraz ciemnym motywem wizualnym (\textit{pepa-linha-dark}).
 
 \section{Tabele aplikacyjne}
 
@@ -577,33 +580,8 @@ Jednokrotne tokeny resetowania hasła powiązane z adresem e-mail.
 
 \begin{figure}[h]
 \centering
-\begin{lstlisting}[frame=single, basicstyle=\ttfamily\footnotesize, numbers=none]
- users
- +----------------------+
- | id (PK)              |
- | name                 |<--------------------------+
- | email                |                           |
- | garmin_email         |        activity_logs      |
- | garmin_password      |  +--------------------+   |
- +----------+-----------+  | id (PK)            |   |
-            | 1            | user_id (FK) ------+   |
-            |              | action                 |
-            | N            | created_at             |
- activities |              +--------------------+   |
- +----------v-----------+                           |
- | id (PK)              |  user_id (FK) ------------+
- | user_id (FK)         |
- | type                 |
- | distance             |       activity_gpx
- | duration             |  +--------------------+
- | avg_speed            |  | id (PK)            |
- | avg_hr / max_hr      |  | activity_id (FK)   |
- | max_speed            |<-+ route_points (JSON) |
- | calories             |  | elevation_gain     |
- | garmin_activity_id   |  +--------------------+
- +----------------------+
-\end{lstlisting}
-\caption{Uproszczony diagram relacji encji}
+\includegraphics[width=\textwidth]{erd.png}
+\caption{Diagram relacji encji bazy danych}
 \end{figure}
 
 % ============================================================
@@ -705,6 +683,9 @@ Pipeline jakości kodu: Prettier (formatowanie), ESLint (lintowanie TypeScript/V
 
 \item \textbf{Migracje bazy danych} \\
 Każda zmiana schematu bazy to osobny, wersjonowany plik migracji Laravel. Historia zmian schematu jest częścią historii Git i pozwala na odtworzenie dowolnego stanu bazy.
+
+\item \textbf{Graficzny interfejs bazy danych -- Adminer} \\
+Do środowiska deweloperskiego dołączony jest kontener \textbf{Adminer} -- webowy klient PostgreSQL dostępny pod adresem \texttt{http://localhost:8080}. Narzędzie umożliwia przeglądanie i edycję danych, podgląd struktury tabel oraz wykonywanie zapytań SQL bez konieczności korzystania z wiersza poleceń. Kontener skonfigurowany jest z domyślnym serwerem \texttt{pgsql} i ciemnym motywem wizualnym.
 
 \item \textbf{Kolejkowanie zadań} \\
 Synchronizacja z Garmin wykonywana jest za pośrednictwem kolejki zadań Laravel (driver: \texttt{database}), co pozwala na asynchroniczne wykonywanie długotrwałych operacji bez blokowania odpowiedzi HTTP.
