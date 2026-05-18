@@ -432,6 +432,50 @@ Projekt skonfigurowany jest dla \textbf{VS Code Dev Containers} -- jednorazowe o
 Pomijanie haków przez \texttt{--no-verify} jest zakazane.
 
 % ============================================================
+\chapter{Diagramy UML}
+\label{ch:diagramy}
+
+\section{Diagram przypadków użycia (Use-Case)}
+
+Diagram przedstawia wszystkich aktorów systemu i przypadki użycia dostępne dla każdego z nich. Wyróżniono dwa aktory: \textbf{Użytkownik} (osoba zalogowana w aplikacji) oraz \textbf{Garmin Connect} (zewnętrzny system sportowy, z którym aplikacja integruje się przez API).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{usecase.png}
+\caption{Diagram przypadków użycia systemu Strava Clone}
+\end{figure}
+
+\section{Diagram czynności (Activity)}
+
+Diagram czynności ilustruje przepływ sterowania dla scenariusza dodawania aktywności przez użytkownika. Uwzględniono trzy ścieżki: ręczne wprowadzenie danych, import z pliku GPX oraz synchronizację z Garmin Connect.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{activity.png}
+\caption{Diagram czynności -- dodawanie aktywności i synchronizacja z Garmin}
+\end{figure}
+
+\section{Diagram klas (Class)}
+
+Diagram klas przedstawia strukturę głównych klas systemu z podziałem na warstwy: modele Eloquent, serwisy logiki biznesowej i kontrolery. Strzałki przerywane oznaczają zależność użycia (\textit{uses}), strzałki ciągłe -- relacje między modelami (Eloquent relationships).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{class.png}
+\caption{Diagram klas -- modele, serwisy i kontrolery}
+\end{figure}
+
+\section{Diagram sekwencji (Sequence)}
+
+Diagram sekwencji opisuje kolejność wywołań metod podczas importu aktywności z pliku GPX -- od żądania HTTP przychodzącego od użytkownika, przez parsowanie pliku, zapis do bazy danych, aż po powiadomienie zwrotne.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{sequence.png}
+\caption{Diagram sekwencji -- import aktywności z pliku GPX}
+\end{figure}
+
+% ============================================================
 \chapter{Opis struktury bazy danych}
 \label{ch:baza}
 
@@ -584,6 +628,145 @@ Jednokrotne tokeny resetowania hasła powiązane z adresem e-mail.
 \caption{Diagram relacji encji bazy danych}
 \end{figure}
 
+\section{Więzy integralności}
+
+\subsection{Klucze obce i usuwanie kaskadowe}
+
+Wszystkie relacje między tabelami aplikacyjnymi zabezpieczone są kluczami obcymi z kaskadowym usuwaniem (\texttt{ON DELETE CASCADE}). Oznacza to, że usunięcie rekordu nadrzędnego automatycznie usuwa wszystkie powiązane rekordy podrzędne -- nie ma możliwości pozostawienia osieroconych danych.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Tabela} & \textbf{Kolumna FK} & \textbf{Ref. tabela} & \textbf{Zachowanie przy usunięciu} \\
+\hline
+activities      & user\_id            & users.id             & CASCADE -- usunięcie użytkownika usuwa wszystkie jego aktywności \\
+\hline
+activity\_gpx   & activity\_id        & activities.id        & CASCADE -- usunięcie aktywności usuwa dane trasy GPS \\
+\hline
+activity\_logs  & user\_id            & users.id             & CASCADE -- usunięcie użytkownika usuwa jego logi \\
+\hline
+sessions        & user\_id            & users.id             & SET NULL -- usunięcie użytkownika unieważnia sesje \\
+\hline
+\end{tabularx}
+\end{center}
+
+Dzięki takiej konfiguracji operacja \texttt{DELETE} na tabeli \texttt{users} jest bezpieczna i atomowa -- baza danych gwarantuje spójność bez konieczności ręcznego usuwania powiązanych rekordów w kodzie aplikacji.
+
+\subsection{Ograniczenia unikalności}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Tabela}    & \textbf{Kolumna}      & \textbf{Uzasadnienie}                        \\
+\hline
+users              & email                 & Każdy adres e-mail może być przypisany do jednego konta \\
+\hline
+activity\_gpx      & activity\_id          & Jedna aktywność może mieć co najwyżej jeden rekord trasy GPS \\
+\hline
+failed\_jobs       & uuid                  & Unikalny identyfikator nieudanego zadania kolejki \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsection{Indeksy}
+
+Poniżej zestawiono indeksy założone na kolumnach najczęściej używanych w klauzulach \texttt{WHERE} i \texttt{ORDER BY}:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Tabela}    & \textbf{Indeksowane kolumny}        & \textbf{Cel}                              \\
+\hline
+users              & email (UNIQUE)                      & Wyszukiwanie użytkownika podczas logowania \\
+\hline
+activity\_logs     & action                              & Filtrowanie logów po typie akcji          \\
+\hline
+activity\_logs     & (user\_id, created\_at)             & Złożony indeks -- pobieranie logów użytkownika posortowanych chronologicznie \\
+\hline
+sessions           & user\_id                            & Wyszukiwanie sesji należących do użytkownika \\
+\hline
+sessions           & last\_activity                      & Czyszczenie wygasłych sesji               \\
+\hline
+cache              & expiration                          & Czyszczenie wygasłych wpisów cache        \\
+\hline
+jobs               & queue                               & Pobieranie zadań z konkretnej kolejki     \\
+\hline
+\end{tabularx}
+\end{center}
+
+\section{Iteracyjny rozwój schematu bazy danych}
+
+Schemat bazy danych powstawał iteracyjnie -- każda zmiana struktury to osobny, wersjonowany plik migracji. Podejście to gwarantuje pełną historię zmian w repozytorium Git oraz możliwość odtworzenia dowolnego stanu schematu przez uruchomienie migracji w górę (\texttt{migrate}) lub w dół (\texttt{migrate:rollback}).
+
+\begin{center}
+\begin{longtable}{|l|p{4.5cm}|p{5.5cm}|}
+\hline
+\textbf{Data} & \textbf{Plik migracji} & \textbf{Zmiana} \\
+\hline
+\endhead
+2026-03-30 & create\_activities\_table & Pierwsza wersja tabeli \texttt{activities} z kolumnami bazowymi i kolumną \texttt{weather\_json} (JSON) \\
+\hline
+2026-04-29 & create\_activity\_gpx\_table & Nowa tabela \texttt{activity\_gpx} przechowująca punkty trasy GPS; FK do \texttt{activities} z CASCADE \\
+\hline
+2026-04-29 & update\_activities\_table & Usunięcie \texttt{weather\_json} (dane pogodowe poza zakresem projektu); dodanie \texttt{avg\_speed} -- normalizacja schematu \\
+\hline
+2026-05-02 & create\_activity\_logs\_table & Tabela \texttt{activity\_logs} (immutable log zdarzeń) z indeksami na \texttt{action} i \texttt{(user\_id, created\_at)} \\
+\hline
+2026-05-07 & add\_garmin\_activity\_id & Dodanie \texttt{garmin\_activity\_id} do \texttt{activities} -- klucz obcy do Garmin Connect, zapobiega duplikatom przy synchronizacji \\
+\hline
+2026-05-07 & add\_stats\_to\_activities & Dodanie kolumn \texttt{avg\_hr}, \texttt{max\_hr}, \texttt{max\_speed}, \texttt{calories} -- rozszerzenie danych ze źródeł Garmin \\
+\hline
+2026-05-07 & add\_garmin\_credentials\_to\_users & Dodanie \texttt{garmin\_email} i \texttt{garmin\_password} do tabeli \texttt{users} -- przechowywanie zaszyfrowanych danych Garmin \\
+\hline
+\end{longtable}
+\end{center}
+
+Każdy plik migracji implementuje metody \texttt{up()} (aplikacja zmiany) i \texttt{down()} (cofnięcie zmiany), co umożliwia pełny rollback do dowolnego punktu w historii schematu.
+
+\section{Seedery i dane testowe}
+
+\subsection{DatabaseSeeder}
+
+Seeder wypełnia bazę danych wygenerowanymi danymi testowymi, umożliwiając szybkie uruchomienie aplikacji z realistycznym zestawem rekordów bez ręcznego wprowadzania danych.
+
+\textbf{Działanie \texttt{DatabaseSeeder::run()}:}
+\begin{enumerate}[noitemsep]
+    \item Tworzy (lub odnajduje) stałego użytkownika demonstracyjnego \texttt{nadia@doe.com} z hasłem \texttt{password}.
+    \item Generuje 50 aktywności powiązanych z tym użytkownikiem.
+    \item Tworzy 100 losowych użytkowników przy użyciu \texttt{UserFactory}.
+    \item Generuje 1000 dodatkowych aktywności przypisywanych losowo do wszystkich 101 użytkowników.
+\end{enumerate}
+
+Po uruchomieniu seeda baza zawiera łącznie \textbf{101 użytkowników} i \textbf{1050 aktywności}.
+
+\subsection{ActivityFactory}
+
+\texttt{ActivityFactory} generuje realistyczne dane aktywności z użyciem biblioteki Faker:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Kolumna} & \textbf{Generowana wartość} \\
+\hline
+type             & losowo: running / cycling / swimming \\
+distance         & losowa liczba zmiennoprzecinkowa 0{,}1--100 km \\
+duration         & losowa liczba całkowita 10--300 minut \\
+date             & losowa data \\
+notes            & losowe zdanie w języku angielskim \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Uruchomienie seederów}
+
+\begin{lstlisting}[language=bash, numbers=none]
+# Samo uruchomienie seederów (bez czyszczenia bazy)
+php artisan db:seed
+
+# Czyszczenie bazy i ponowna migracja + seed (środowisko deweloperskie)
+php artisan migrate:fresh --seed
+\end{lstlisting}
+
 % ============================================================
 \chapter{Wdrożone zagadnienia kwalifikacyjne}
 \label{ch:zagadnienia}
@@ -692,6 +875,34 @@ Synchronizacja z Garmin wykonywana jest za pośrednictwem kolejki zadań Laravel
 
 \item \textbf{Leniwy zapis danych trasy GPS (lazy persistence)} \\
 Dane trasy GPS dla aktywności Garmin pobierane są z API Garmin tylko przy pierwszym wyświetleniu mapy, a następnie trwale zapisywane w tabeli \texttt{activity\_gpx}. Każde kolejne otwarcie mapy korzysta z bazy danych -- bez ponownego zapytania do API Garmin. Tokeny OAuth Garmin przechowywane są osobno w cache Laravel (\texttt{LaravelCacheTokenStore}).
+
+\end{enumerate}
+
+\section{Testowanie i optymalizacja}
+
+\begin{enumerate}[resume]
+
+\item \textbf{Testowanie poprawności operacji CRUD} \\
+Każda z czterech operacji na aktywności została zweryfikowana manualnie:
+\begin{itemize}[noitemsep]
+    \item \textbf{Create} -- ręczne dodanie aktywności przez formularz; weryfikacja zapisu w bazie i wyświetlenia na liście aktywności,
+    \item \textbf{Read} -- przeglądanie listy aktywności z filtrowaniem po typie i paginacją; weryfikacja poprawności wyświetlanych danych,
+    \item \textbf{Update} -- edycja danych aktywności; weryfikacja zapisu zmian,
+    \item \textbf{Delete} -- usunięcie aktywności; weryfikacja kaskadowego usunięcia rekordu z tabeli \texttt{activity\_gpx} oraz pojawienia się wpisu w \texttt{activity\_logs}.
+\end{itemize}
+Testy przeprowadzono również dla importu z pliku GPX i synchronizacji Garmin, weryfikując poprawność parsowania danych i wykrywania duplikatów na podstawie \texttt{garmin\_activity\_id}.
+
+\item \textbf{Optymalizacja zapytań przez indeksy} \\
+Najczęściej wykonywane zapytania zostały zabezpieczone indeksami na poziomie migracji:
+\begin{itemize}[noitemsep]
+    \item \texttt{users.email} -- indeks unikalny przyspiesza wyszukiwanie użytkownika podczas logowania (operacja \texttt{WHERE email = ?}),
+    \item \texttt{activity\_logs(user\_id, created\_at)} -- złożony indeks pokrywający zapytania pobierające logi konkretnego użytkownika posortowane chronologicznie,
+    \item \texttt{activity\_logs(action)} -- indeks filtrowania logów po typie akcji.
+\end{itemize}
+Kolumna \texttt{activities.user\_id} korzysta z indeksu automatycznie tworzonego przez Laravel przy definicji klucza obcego (\texttt{foreignId}), co przyspiesza scopowanie zapytań do zalogowanego użytkownika (\texttt{WHERE user\_id = ?}).
+
+\item \textbf{Normalizacja schematu} \\
+W trakcie iteracyjnego rozwoju projektu przeprowadzono normalizację schematu: dane trasy GPS wydzielono do osobnej tabeli \texttt{activity\_gpx} (zamiast przechowywania w kolumnie JSON w tabeli \texttt{activities}). Dzięki temu zapytania do listy aktywności nie pobierają potencjalnie dużych danych trasy -- relacja \texttt{gpxData()} ładowana jest wyłącznie na żądanie (\textit{lazy loading}) przy wyświetleniu szczegółów aktywności. Eliminuje to problem N+1 na liście zbiorczej.
 
 \end{enumerate}
 
@@ -905,6 +1116,104 @@ chown -R www-data:www-data storage bootstrap/cache
 \hline
 \end{tabular}
 \end{center}
+
+% ============================================================
+\chapter{Dokumentacja użytkowa}
+\label{ch:uzytkownik}
+
+\section{Opis funkcji i możliwości}
+
+Strava Clone to aplikacja webowa do rejestrowania i analizowania aktywności fizycznych. Główne możliwości dostępne dla użytkownika:
+
+\begin{itemize}
+    \item \textbf{Rejestracja i logowanie} -- zakładanie konta, weryfikacja e-mail, reset hasła.
+    \item \textbf{Dashboard} -- podgląd łącznego dystansu, czasu i średniej prędkości ze wszystkich aktywności; wykres aktywności w czasie; tabela ostatnich treningów.
+    \item \textbf{Dodawanie aktywności ręcznie} -- wpisanie typu (bieg, rower, pływanie), dystansu, czasu trwania, daty i opcjonalnych notatek.
+    \item \textbf{Import z pliku GPX} -- wgranie pliku trasy z zegarka lub aplikacji GPS; aplikacja automatycznie oblicza dystans, czas i przewyższenie oraz rysuje trasę na mapie.
+    \item \textbf{Integracja z Garmin Connect} -- jednorazowy pełny import historii aktywności (do 1000) lub synchronizacja tylko nowych treningów.
+    \item \textbf{Mapa trasy} -- interaktywna mapa z narysowaną trasą i markerami startu/mety (dla aktywności GPX i Garmin).
+    \item \textbf{Filtrowanie i paginacja} -- filtrowanie listy aktywności według typu (bieg/rower/pływanie) oraz przeglądanie z podziałem na strony.
+    \item \textbf{Usuwanie aktywności} -- trwałe usunięcie aktywności wraz z danymi trasy GPS.
+    \item \textbf{Zarządzanie profilem} -- zmiana imienia, adresu e-mail, hasła, podpięcie konta Garmin lub usunięcie konta.
+    \item \textbf{Tryb ciemny} -- automatyczne wsparcie dla jasnego i ciemnego motywu systemowego.
+    \item \textbf{Język interfejsu} -- aplikacja dostępna w języku polskim i angielskim.
+\end{itemize}
+
+\section{Instrukcja obsługi}
+
+\subsection{Rejestracja i pierwsze logowanie}
+
+\begin{enumerate}[noitemsep]
+    \item Otwórz aplikację pod adresem \texttt{http://localhost:8000}.
+    \item Kliknij \textbf{Zarejestruj się} i wypełnij formularz (imię, e-mail, hasło).
+    \item Potwierdź adres e-mail klikając link w otrzymanej wiadomości.
+    \item Zaloguj się podając e-mail i hasło.
+\end{enumerate}
+
+\subsection{Dodawanie aktywności ręcznie}
+
+\begin{enumerate}[noitemsep]
+    \item Na dashboardzie kliknij \textbf{Dodaj aktywność}.
+    \item Wybierz typ aktywności (Bieganie / Jazda na rowerze / Pływanie).
+    \item Wpisz dystans (w km), czas trwania (w minutach), datę i opcjonalne notatki.
+    \item Kliknij \textbf{Zapisz} -- aktywność pojawi się na liście i w statystykach dashboardu.
+\end{enumerate}
+
+\subsection{Import aktywności z pliku GPX}
+
+\begin{enumerate}[noitemsep]
+    \item Na stronie listy aktywności kliknij \textbf{Importuj GPX}.
+    \item Wybierz plik \texttt{.gpx} z dysku (eksportowany z Garmina, Stravacompatible, itp.).
+    \item Aplikacja automatycznie wyliczy dystans, czas i przewyższenie -- kliknij \textbf{Importuj}.
+    \item Po imporcie możesz otworzyć aktywność i zobaczyć trasę na mapie.
+\end{enumerate}
+
+\subsection{Synchronizacja z Garmin Connect}
+
+\begin{enumerate}[noitemsep]
+    \item Przejdź do \textbf{Profil} i w sekcji \textit{Garmin Connect} wpisz e-mail i hasło konta Garmin. Kliknij \textbf{Zapisz}.
+    \item Wróć na Dashboard.
+    \item Kliknij \textbf{Importuj z Garmin} -- pobierze całą historię aktywności (do 1000).
+    \item Przy kolejnych wizytach kliknij \textbf{Synchronizuj} -- pobierze tylko nowe aktywności.
+\end{enumerate}
+
+\subsection{Przeglądanie aktywności}
+
+\begin{enumerate}[noitemsep]
+    \item Przejdź do zakładki \textbf{Aktywności}.
+    \item Użyj filtrów na górze listy, aby wyświetlić tylko wybrany typ (np. Bieganie).
+    \item Kliknij aktywność na liście, aby zobaczyć szczegóły -- parametry i mapę trasy.
+    \item Aby usunąć aktywność, kliknij ikonę kosza przy wybranym rekordzie i potwierdź.
+\end{enumerate}
+
+\section{Pytania i odpowiedzi (FAQ)}
+
+\textbf{Q: Zapomniałem hasła. Co zrobić?} \\
+A: Na stronie logowania kliknij \textit{Nie pamiętasz hasła?}, podaj adres e-mail i kliknij \textit{Wyślij link}. Otrzymasz wiadomość z linkiem do ustawienia nowego hasła. Link jest jednorazowy i wygasa po 60 minutach.
+
+\vspace{0.5em}
+\textbf{Q: Czy mogę importować aktywności zarówno z GPX, jak i z Garmin?} \\
+A: Tak. Obie metody działają niezależnie. Aplikacja wykrywa duplikaty aktywności Garmin po unikalnym identyfikatorze \texttt{garmin\_activity\_id}, więc synchronizacja nie zduplikuje wcześniej zaimportowanych rekordów.
+
+\vspace{0.5em}
+\textbf{Q: Dlaczego na mapie nie widać trasy dla ręcznie dodanej aktywności?} \\
+A: Mapa wyświetlana jest tylko dla aktywności, które zawierają dane GPS (zaimportowanych z pliku GPX lub z Garmin Connect). Aktywności dodane ręcznie nie posiadają punktów trasy.
+
+\vspace{0.5em}
+\textbf{Q: Czy moje hasło do Garmin Connect jest bezpieczne?} \\
+A: Tak. Hasło przechowywane jest w bazie danych w formie zaszyfrowanej (algorytm AES-256 przez mechanizm \texttt{encrypted} Laravel). Klucz szyfrowania nie jest zapisany w bazie danych, lecz w zmiennej środowiskowej \texttt{APP\_KEY}.
+
+\vspace{0.5em}
+\textbf{Q: Co oznaczają jednostki w statystykach aktywności?} \\
+A: Dystans podawany jest w \textbf{kilometrach}, czas w \textbf{minutach}, prędkość w \textbf{km/h}, tętno w \textbf{bpm}, kalorie w \textbf{kcal}, przewyższenie w \textbf{metrach}.
+
+\vspace{0.5em}
+\textbf{Q: Ile aktywności można zaimportować z Garmin naraz?} \\
+A: Limit jednorazowego importu wynosi \textbf{1000 aktywności}. Kolejne synchronizacje pobierają wyłącznie aktywności nowsze niż ostatnia zapisana w bazie -- nie ma ograniczenia łącznej liczby rekordów.
+
+\vspace{0.5em}
+\textbf{Q: Jak usunąć konto?} \\
+A: Przejdź do \textbf{Profil} $\to$ sekcja \textit{Usuń konto}. Wpisz hasło jako potwierdzenie i kliknij \textit{Usuń konto}. Operacja jest nieodwracalna -- zostaną usunięte wszystkie aktywności, dane trasy GPS i historia logów.
 
 % ============================================================
 \chapter{Wnioski projektowe}
