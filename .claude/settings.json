@@ -24,7 +24,12 @@
       "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/usecase.puml -o /var/www/html/docs/)",
       "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/activity.puml -o /var/www/html/docs/)",
       "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/class.puml -o /var/www/html/docs/)",
-      "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/sequence.puml -o /var/www/html/docs/)"
+      "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/sequence.puml -o /var/www/html/docs/)",
+      "Bash(sed -n '1,96p' /var/www/html/docs/sprawozdanie.tex > /tmp/preamble_content.txt && echo \"Preamble: $\\(wc -l < /tmp/preamble_content.txt\\) lines\")",
+      "Bash(python3)",
+      "Bash(pdflatex -interaction=nonstopmode __TRACKED_VAR__.tex)",
+      "Bash([ -f \"$f.pdf\" ])",
+      "Bash(pdfinfo __TRACKED_VAR__.pdf)"
     ],
     "additionalDirectories": [
       "/tmp"
