@@ -10,7 +10,9 @@
     "format:check": "prettier --check resources/js",
     "format": "prettier --write resources/js",
     "prepare": "husky",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docs:build": "latexmk -pdf -cd -interaction=nonstopmode docs/sprawozdanie.tex",
+    "docs:watch": "latexmk -pvc -pdf -cd -interaction=nonstopmode docs/sprawozdanie.tex"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
