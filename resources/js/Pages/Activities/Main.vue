@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
+import { useMediaQuery } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import ActivityMap from '@/Components/ActivityMap.vue';
 import Modal from '@/Components/Modal.vue';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
@@ -24,16 +24,18 @@ import {
   TableRow,
 } from '@/Components/ui/table';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import ActivityDetailPanel from '@/Pages/Activities/ActivityDetailPanel.vue';
 import {
+  Activity as ActivityIcon,
+  Bike,
   ChevronDown,
-  Flame,
-  Gauge,
-  Heart,
+  Clock,
+  Footprints,
   RefreshCw,
-  Timer,
   Trash2,
-  Zap,
+  Waves,
 } from 'lucide-vue-next';
+import type { Component } from 'vue';
 
 interface RoutePoint {
   lat: number;
@@ -79,11 +81,33 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
+const isDesktop = useMediaQuery('(min-width: 768px)');
+
 const types = computed<Record<string, string>>(() => ({
   running: t('activities.types.running'),
   cycling: t('activities.types.cycling'),
   swimming: t('activities.types.swimming'),
 }));
+
+const typeStyles: Record<
+  string,
+  { icon: Component; color: string; bg: string }
+> = {
+  running: {
+    icon: Footprints,
+    color: 'text-orange-500',
+    bg: 'bg-orange-500/10',
+  },
+  cycling: { icon: Bike, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+  swimming: { icon: Waves, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+};
+
+const styleFor = (type: string) =>
+  typeStyles[type] ?? {
+    icon: ActivityIcon,
+    color: 'text-primary',
+    bg: 'bg-primary/10',
+  };
 
 function filterLabel() {
   return props.filters.type
@@ -156,56 +180,6 @@ async function toggleMap(activity: Activity) {
     mapLoading.value = false;
   }
 }
-
-const d = t('activities.details.noData');
-
-interface StatCard {
-  label: string;
-  value: string | null;
-  unit: string;
-  icon: typeof Heart;
-}
-
-function buildStatCards(activity: Activity): StatCard[] {
-  return [
-    {
-      label: t('activities.details.avgHr'),
-      value: activity.avg_hr != null ? String(activity.avg_hr) : null,
-      unit: t('activities.details.bpm'),
-      icon: Heart,
-    },
-    {
-      label: t('activities.details.maxHr'),
-      value: activity.max_hr != null ? String(activity.max_hr) : null,
-      unit: t('activities.details.bpm'),
-      icon: Heart,
-    },
-    {
-      label: t('activities.details.avgPace'),
-      value: activity.avg_pace ?? null,
-      unit: '',
-      icon: Timer,
-    },
-    {
-      label: t('activities.details.avgSpeed'),
-      value: activity.avg_speed != null ? activity.avg_speed.toFixed(1) : null,
-      unit: t('activities.details.kmh'),
-      icon: Gauge,
-    },
-    {
-      label: t('activities.details.maxSpeed'),
-      value: activity.max_speed != null ? activity.max_speed.toFixed(1) : null,
-      unit: t('activities.details.kmh'),
-      icon: Zap,
-    },
-    {
-      label: t('activities.details.calories'),
-      value: activity.calories != null ? String(activity.calories) : null,
-      unit: t('activities.details.kcal'),
-      icon: Flame,
-    },
-  ];
-}
 </script>
 
 <template>
@@ -214,8 +188,10 @@ function buildStatCards(activity: Activity): StatCard[] {
   <AuthenticatedLayout>
     <div class="py-12">
       <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-        <Card>
-          <CardHeader class="flex flex-row items-center justify-between">
+        <Card class="py-4 md:py-6">
+          <CardHeader
+            class="flex flex-col gap-3 px-4 sm:flex-row sm:items-center sm:justify-between md:px-6"
+          >
             <CardTitle>{{ t('activities.recentActivities') }}</CardTitle>
 
             <div class="flex items-center gap-2">
@@ -268,7 +244,7 @@ function buildStatCards(activity: Activity): StatCard[] {
             </div>
           </CardHeader>
 
-          <CardContent>
+          <CardContent class="px-4 md:px-6">
             <div
               v-if="activities.data.length === 0"
               class="text-muted-foreground py-6 text-center"
@@ -277,106 +253,139 @@ function buildStatCards(activity: Activity): StatCard[] {
             </div>
 
             <template v-else>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{{ t('activities.date') }}</TableHead>
-                    <TableHead>{{ t('activities.type') }}</TableHead>
-                    <TableHead>{{ t('activities.distance') }}</TableHead>
-                    <TableHead>{{ t('activities.time') }}</TableHead>
-                    <TableHead />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <template
-                    v-for="activity in activities.data"
-                    :key="activity.id"
-                  >
-                    <TableRow
-                      class="cursor-pointer select-none"
-                      :class="{ 'bg-muted/40': mapActivityId === activity.id }"
-                      @click="toggleMap(activity)"
+              <!-- Desktop: table -->
+              <div v-if="isDesktop">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{{ t('activities.date') }}</TableHead>
+                      <TableHead>{{ t('activities.type') }}</TableHead>
+                      <TableHead>{{ t('activities.distance') }}</TableHead>
+                      <TableHead>{{ t('activities.time') }}</TableHead>
+                      <TableHead />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <template
+                      v-for="activity in activities.data"
+                      :key="activity.id"
                     >
-                      <TableCell>{{ activity.date }}</TableCell>
-                      <TableCell>{{
-                        types[activity.type] ?? activity.type
-                      }}</TableCell>
-                      <TableCell>{{ activity.distance }} km</TableCell>
-                      <TableCell>{{ activity.duration }}</TableCell>
-                      <TableCell class="text-right">
-                        <button
-                          class="text-muted-foreground hover:text-destructive transition-colors"
-                          @click.stop="askDelete(activity.id)"
-                        >
-                          <Trash2 class="h-4 w-4" />
-                        </button>
-                      </TableCell>
-                    </TableRow>
-
-                    <TableRow v-if="mapActivityId === activity.id">
-                      <TableCell colspan="5" class="p-0">
-                        <div class="flex gap-4 p-4">
-                          <!-- Map (left half) -->
-                          <div class="min-w-0 flex-1">
+                      <TableRow
+                        class="cursor-pointer select-none"
+                        :class="{
+                          'bg-muted/40': mapActivityId === activity.id,
+                        }"
+                        @click="toggleMap(activity)"
+                      >
+                        <TableCell>{{ activity.date }}</TableCell>
+                        <TableCell>
+                          <div class="flex items-center gap-2">
                             <div
-                              v-if="mapLoading"
-                              class="text-muted-foreground flex h-64 items-center justify-center text-sm"
+                              :class="[
+                                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
+                                styleFor(activity.type).bg,
+                              ]"
                             >
-                              {{ t('activities.mapLoading') }}
+                              <component
+                                :is="styleFor(activity.type).icon"
+                                :class="[
+                                  'h-3.5 w-3.5',
+                                  styleFor(activity.type).color,
+                                ]"
+                              />
                             </div>
-                            <ActivityMap
-                              v-else-if="routePoints.length > 0"
-                              :route-points="routePoints"
-                            />
-                            <div
-                              v-else
-                              class="text-muted-foreground flex h-64 items-center justify-center rounded-lg border text-sm"
-                            >
-                              {{ t('activities.mapNoData') }}
-                            </div>
+                            <span>{{
+                              types[activity.type] ?? activity.type
+                            }}</span>
                           </div>
+                        </TableCell>
+                        <TableCell>{{ activity.distance }} km</TableCell>
+                        <TableCell>{{ activity.duration }}</TableCell>
+                        <TableCell class="text-right">
+                          <button
+                            class="text-muted-foreground hover:text-destructive cursor-pointer p-2 transition-colors"
+                            aria-label="Delete"
+                            @click.stop="askDelete(activity.id)"
+                          >
+                            <Trash2 class="h-4 w-4" />
+                          </button>
+                        </TableCell>
+                      </TableRow>
 
-                          <!-- Stats (right half) -->
-                          <div class="w-1/2 shrink-0">
-                            <div class="grid grid-cols-2 gap-3">
-                              <div
-                                v-for="card in buildStatCards(activity)"
-                                :key="card.label"
-                                class="bg-muted/40 flex flex-col gap-1 rounded-lg p-3"
-                              >
-                                <div
-                                  class="text-muted-foreground flex items-center gap-1.5 text-xs"
-                                >
-                                  <component
-                                    :is="card.icon"
-                                    class="h-3.5 w-3.5"
-                                  />
-                                  {{ card.label }}
-                                </div>
-                                <div class="text-sm font-semibold">
-                                  <span v-if="card.value != null">
-                                    {{ card.value
-                                    }}<span
-                                      v-if="card.unit"
-                                      class="text-muted-foreground ml-1 text-xs font-normal"
-                                      >{{ card.unit }}</span
-                                    >
-                                  </span>
-                                  <span
-                                    v-else
-                                    class="text-muted-foreground font-normal"
-                                    >{{ d }}</span
-                                  >
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </template>
-                </TableBody>
-              </Table>
+                      <TableRow v-if="mapActivityId === activity.id">
+                        <TableCell colspan="5" class="p-0">
+                          <ActivityDetailPanel
+                            class="p-4"
+                            :activity="activity"
+                            :route-points="routePoints"
+                            :map-loading="mapLoading"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </template>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <!-- Mobile: tiles -->
+              <div v-else class="space-y-2">
+                <div
+                  v-for="activity in activities.data"
+                  :key="activity.id"
+                  class="overflow-hidden rounded-lg border"
+                  :class="{ 'bg-muted/40': mapActivityId === activity.id }"
+                >
+                  <div
+                    class="flex cursor-pointer items-center gap-3 p-3 select-none"
+                    @click="toggleMap(activity)"
+                  >
+                    <div
+                      :class="[
+                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
+                        styleFor(activity.type).bg,
+                      ]"
+                    >
+                      <component
+                        :is="styleFor(activity.type).icon"
+                        :class="['h-4 w-4', styleFor(activity.type).color]"
+                      />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="font-medium">
+                        {{ types[activity.type] ?? activity.type }}
+                      </div>
+                      <div class="text-muted-foreground text-xs">
+                        {{ activity.date }}
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="font-semibold">
+                        {{ activity.distance }} km
+                      </div>
+                      <div
+                        class="text-muted-foreground flex items-center justify-end gap-1 text-xs"
+                      >
+                        <Clock class="h-3 w-3" />
+                        {{ activity.duration }}
+                      </div>
+                    </div>
+                    <button
+                      class="text-muted-foreground hover:text-destructive shrink-0 transition-colors"
+                      @click.stop="askDelete(activity.id)"
+                    >
+                      <Trash2 class="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <ActivityDetailPanel
+                    v-if="mapActivityId === activity.id"
+                    class="border-t p-3"
+                    :activity="activity"
+                    :route-points="routePoints"
+                    :map-loading="mapLoading"
+                  />
+                </div>
+              </div>
 
               <div class="mt-4 flex items-center justify-between">
                 <Button

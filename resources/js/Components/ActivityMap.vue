@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Map, Polyline } from 'leaflet';
-import { onMounted, onUnmounted, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface RoutePoint {
   lat: number;
@@ -12,6 +12,7 @@ const props = defineProps<{
   routePoints: RoutePoint[];
 }>();
 
+const mapEl = ref<HTMLElement | null>(null);
 let map: Map | null = null;
 let polyline: Polyline | null = null;
 
@@ -19,7 +20,8 @@ onMounted(async () => {
   const L = await import('leaflet');
   await import('leaflet/dist/leaflet.css');
 
-  map = L.map('activity-map');
+  if (!mapEl.value) return;
+  map = L.map(mapEl.value);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
@@ -58,5 +60,5 @@ async function drawRoute(L: typeof import('leaflet')) {
 </script>
 
 <template>
-  <div id="activity-map" class="h-64 w-full rounded-lg" />
+  <div ref="mapEl" class="h-64 w-full rounded-lg" />
 </template>

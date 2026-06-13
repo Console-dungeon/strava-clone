@@ -12,7 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/Components/ui/dropdown-menu';
-import { Menu, Moon, Sun, X } from 'lucide-vue-next';
+import {
+  Activity,
+  LayoutDashboard,
+  Menu,
+  Moon,
+  Plus,
+  Sun,
+  X,
+} from 'lucide-vue-next';
 
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { useLocale } from '@/composables/useLocale';
@@ -40,6 +48,14 @@ const userInitials = computed(() => {
 
 const showingNavigationDropdown = ref(false);
 
+const closeMenu = () => (showingNavigationDropdown.value = false);
+
+const mobileNavItems = computed(() => [
+  { label: t('nav.dashboard'), route: 'dashboard', icon: LayoutDashboard },
+  { label: t('nav.activities'), route: 'activities.main', icon: Activity },
+  { label: t('nav.addActivity'), route: 'activities.create', icon: Plus },
+]);
+
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
@@ -59,7 +75,7 @@ watch(
   <div class="bg-app text-foreground min-h-screen">
     <!-- NAVBAR -->
     <nav
-      class="dark:bg-background/40 sticky top-0 z-50 border-b bg-white/60 backdrop-blur-xs backdrop-saturate-50"
+      class="dark:bg-background/40 sticky top-0 z-999 border-b bg-white/60 backdrop-blur-xs backdrop-saturate-50"
     >
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
@@ -69,7 +85,7 @@ watch(
               <ApplicationLogo class="text-primary h-8 w-auto" />
             </Link>
             <!-- Desktop Navigation -->
-            <div class="hidden items-center gap-1 sm:flex">
+            <div class="hidden items-center gap-1 lg:flex">
               <Link
                 :href="route('dashboard')"
                 class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
@@ -107,7 +123,7 @@ watch(
           </div>
 
           <!-- RIGHT SIDE (desktop) -->
-          <div class="hidden items-center gap-2 sm:flex">
+          <div class="hidden items-center gap-2 lg:flex">
             <Button
               variant="ghost"
               size="sm"
@@ -140,7 +156,10 @@ watch(
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent class="w-48 *:cursor-pointer" align="end">
+              <DropdownMenuContent
+                class="z-1000 w-48 *:cursor-pointer"
+                align="end"
+              >
                 <DropdownMenuItem as-child>
                   <Link :href="route('profile.edit')">{{
                     t('nav.profile')
@@ -157,7 +176,7 @@ watch(
           </div>
 
           <!-- Mobile controls -->
-          <div class="flex items-center gap-2 sm:hidden">
+          <div class="flex items-center gap-2 lg:hidden">
             <Button
               variant="ghost"
               size="sm"
@@ -182,71 +201,106 @@ watch(
         </div>
       </div>
 
-      <!-- Mobile Menu -->
-      <div
-        v-if="showingNavigationDropdown"
-        class="dark:bg-background/80 border-t bg-white/80 backdrop-blur-sm sm:hidden"
-      >
-        <div class="space-y-1 px-4 py-3">
-          <Link
-            :href="route('dashboard')"
-            class="block rounded-md px-3 py-2 text-sm font-medium"
-            :class="
-              route().current('dashboard')
-                ? 'text-foreground'
-                : 'text-muted-foreground'
-            "
-          >
-            {{ t('nav.dashboard') }}
-          </Link>
-          <Link
-            :href="route('activities.main')"
-            class="block rounded-md px-3 py-2 text-sm font-medium"
-            :class="
-              route().current('activities.main')
-                ? 'text-foreground'
-                : 'text-muted-foreground'
-            "
-          >
-            {{ t('nav.activities') }}
-          </Link>
-          <Link
-            :href="route('activities.create')"
-            class="block rounded-md px-3 py-2 text-sm font-medium"
-            :class="
-              route().current('activities.create')
-                ? 'text-foreground'
-                : 'text-muted-foreground'
-            "
-          >
-            {{ t('nav.addActivity') }}
-          </Link>
-        </div>
+      <!-- Mobile drawer -->
+      <Teleport to="body">
+        <!-- Backdrop -->
+        <Transition
+          enter-active-class="transition-opacity duration-300 ease-out"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+          leave-active-class="transition-opacity duration-200 ease-in"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <div
+            v-if="showingNavigationDropdown"
+            class="fixed inset-0 z-1000 bg-black/40 backdrop-blur-sm lg:hidden"
+            @click="closeMenu"
+          />
+        </Transition>
 
-        <div class="border-t px-4 py-3">
-          <div class="text-base font-medium">{{ user?.name || '' }}</div>
-          <div class="text-muted-foreground text-sm">
-            {{ user?.email || '' }}
-          </div>
+        <!-- Panel -->
+        <Transition
+          enter-active-class="transition-transform duration-300 ease-out"
+          enter-from-class="translate-x-full"
+          enter-to-class="translate-x-0"
+          leave-active-class="transition-transform duration-200 ease-in"
+          leave-from-class="translate-x-0"
+          leave-to-class="translate-x-full"
+        >
+          <div
+            v-if="showingNavigationDropdown"
+            class="dark:bg-background fixed inset-y-0 right-0 z-1001 flex w-3/4 max-w-sm flex-col overflow-y-auto border-l bg-white shadow-2xl lg:hidden"
+          >
+            <!-- Close -->
+            <div class="flex items-center justify-end px-2 py-2">
+              <Button variant="ghost" size="icon" @click="closeMenu">
+                <X class="h-5 w-5" />
+              </Button>
+            </div>
 
-          <div class="mt-3 space-y-1">
-            <Link
-              :href="route('profile.edit')"
-              class="text-muted-foreground hover:text-foreground block py-2 text-sm"
-            >
-              {{ t('nav.profile') }}
-            </Link>
-            <Link
-              :href="route('logout')"
-              method="post"
-              as="button"
-              class="text-muted-foreground hover:text-foreground block py-2 text-sm"
-            >
-              {{ t('nav.logout') }}
-            </Link>
+            <!-- Profile first -->
+            <div class="border-b px-4 pb-4">
+              <div class="flex items-center gap-3">
+                <Avatar>
+                  <!-- INFO: Temporary static avatar. -->
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="@shadcn"
+                  />
+                  <AvatarFallback>{{ userInitials }}</AvatarFallback>
+                </Avatar>
+                <div class="min-w-0">
+                  <div class="truncate text-base font-medium">
+                    {{ user?.name || '' }}
+                  </div>
+                  <div class="text-muted-foreground truncate text-sm">
+                    {{ user?.email || '' }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 space-y-1">
+                <Link
+                  :href="route('profile.edit')"
+                  class="text-muted-foreground hover:text-foreground block py-2 text-sm"
+                  @click="closeMenu"
+                >
+                  {{ t('nav.profile') }}
+                </Link>
+                <Link
+                  :href="route('logout')"
+                  method="post"
+                  as="button"
+                  class="text-muted-foreground hover:text-foreground block py-2 text-sm"
+                  @click="closeMenu"
+                >
+                  {{ t('nav.logout') }}
+                </Link>
+              </div>
+            </div>
+
+            <!-- Routing -->
+            <div class="space-y-1 px-4 py-3">
+              <Link
+                v-for="item in mobileNavItems"
+                :key="item.route"
+                :href="route(item.route)"
+                class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                :class="
+                  route().current(item.route)
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                "
+                @click="closeMenu"
+              >
+                <component :is="item.icon" class="h-4 w-4 shrink-0" />
+                {{ item.label }}
+              </Link>
+            </div>
           </div>
-        </div>
-      </div>
+        </Transition>
+      </Teleport>
     </nav>
 
     <!-- PAGE HEADER -->
