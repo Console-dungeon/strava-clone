@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Listeners\SendWelcomeEmail;
+use App\Services\GarminService;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
-use App\Services\GarminService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+        Event::listen(Registered::class, SendWelcomeEmail::class);
     }
 }
