@@ -3,7 +3,36 @@
   "permissions": {
     "allow": [
       "Bash(php artisan *)",
-      "Bash(pnpm run *)"
+      "Bash(pnpm run *)",
+      "Bash(sudo DEBIAN_FRONTEND=noninteractive apt-get install -y texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-lang-polish texlive-fonts-recommended lmodern)",
+      "Bash(find /usr /opt /home -name \"pdflatex\" 2>/dev/null | head -5 *)",
+      "Read(//usr/**)",
+      "Bash(gh api *)",
+      "Bash(latexmk -pdf -cd -interaction=nonstopmode sprawozdanie.tex)",
+      "Bash(pdflatex -interaction=nonstopmode sprawozdanie.tex)",
+      "Bash(python3 -c \"import docx\")",
+      "Bash(pip install *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -m pip install python-docx -q)",
+      "Bash(unzip -p \"Wymagania dokumentacji.docx\" word/document.xml)",
+      "Bash(kpsewhich tikz.sty)",
+      "Bash(kpsewhich pgf-umlsd.sty)",
+      "Bash(kpsewhich tikz-uml.sty)",
+      "Bash(apt-get install *)",
+      "Bash(curl -sL https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar -o /tmp/plantuml.jar)",
+      "Bash(java -jar /tmp/plantuml.jar -version)",
+      "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/usecase.puml -o /var/www/html/docs/)",
+      "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/activity.puml -o /var/www/html/docs/)",
+      "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/class.puml -o /var/www/html/docs/)",
+      "Bash(java -jar /tmp/plantuml.jar -tpng /tmp/sequence.puml -o /var/www/html/docs/)",
+      "Bash(sed -n '1,96p' /var/www/html/docs/sprawozdanie.tex > /tmp/preamble_content.txt && echo \"Preamble: $\\(wc -l < /tmp/preamble_content.txt\\) lines\")",
+      "Bash(python3)",
+      "Bash(pdflatex -interaction=nonstopmode __TRACKED_VAR__.tex)",
+      "Bash([ -f \"$f.pdf\" ])",
+      "Bash(pdfinfo __TRACKED_VAR__.pdf)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   },
   "hooks": {

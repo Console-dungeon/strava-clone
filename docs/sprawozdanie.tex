@@ -1,0 +1,1280 @@
+\documentclass[12pt,a4paper]{report}
+
+% Kodowanie i język
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{lmodern}
+
+% Marginesy
+\usepackage[margin=2.5cm]{geometry}
+
+% Grafika i kolory
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Tabele
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+
+% Listy
+\usepackage{enumitem}
+
+% Kod źródłowy
+\usepackage{listings}
+\usepackage{lstautogobble}
+
+% Hiperłącza
+\usepackage[hidelinks,colorlinks=false]{hyperref}
+
+% Nagłówki i stopki
+\usepackage{fancyhdr}
+
+% Interlinea
+\usepackage{setspace}
+\onehalfspacing
+
+% Wcięcia
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+
+% Definicja koloru dla kodu
+\definecolor{codeblue}{RGB}{0,102,204}
+\definecolor{codegray}{RGB}{128,128,128}
+\definecolor{codegreen}{RGB}{0,128,0}
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeborder}{RGB}{220,220,220}
+
+% Styl dla kodu
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{codebg},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codeblue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codegreen!60!black},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codeborder},
+    autogobble=true
+}
+\lstset{style=mystyle}
+
+% Styl PHP
+\lstdefinelanguage{PHP}{
+    morekeywords={class,function,public,private,protected,static,return,if,else,foreach,new,use,namespace,extends,implements,interface,abstract,final,try,catch,throw,null,true,false,array,string,int,float,bool,void,mixed},
+    sensitive=true,
+    morecomment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]",
+    morestring=[b]',
+}
+
+% Nagłówki
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Strava Clone -- Sprawozdanie projektowe}
+\fancyhead[R]{\small\thepage}
+\fancyfoot[C]{}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Głębokość spisu treści
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
+% ============================================================
+\begin{document}
+
+% Strona tytułowa
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+
+    {\LARGE\bfseries Sprawozdanie z projektu programistycznego\par}
+    \vspace{1.5cm}
+
+    {\Huge\bfseries Strava Clone\par}
+    \vspace{0.5cm}
+    {\large Aplikacja do śledzenia aktywności fizycznej\par}
+
+    \vspace{2cm}
+
+    \begin{tabular}{ll}
+        \textbf{Technologia backendu:}  & Laravel 12 (PHP 8.2+)       \\[4pt]
+        \textbf{Technologia frontendu:} & Vue 3 + TypeScript           \\[4pt]
+        \textbf{Baza danych:}           & PostgreSQL 18                \\[4pt]
+        \textbf{Repozytorium:}          & github.com/Console-dungeon/ \\
+                                        & strava-clone                 \\
+    \end{tabular}
+
+    \vfill
+
+    {\large \today\par}
+\end{titlepage}
+
+% Spis treści
+\tableofcontents
+\thispagestyle{empty}
+\cleardoublepage
+
+% ============================================================
+\chapter{Opis funkcjonalny systemu}
+\label{ch:funkcjonalny}
+
+\section{Cel i zakres projektu}
+
+Strava Clone jest aplikacją webową przeznaczoną do rejestrowania, analizowania i wizualizacji aktywności fizycznych użytkownika. Stanowi odwzorowanie kluczowych funkcjonalności popularnej platformy Strava, z naciskiem na integrację z urządzeniami Garmin oraz wsparciem dla plików GPS.
+
+Aplikacja adresowana jest do osób aktywnych fizycznie -- biegaczy, rowerzystów i pływaków -- którzy chcą mieć wgląd w historię swoich treningów i monitorować postępy w jednym miejscu.
+
+\section{Moduły funkcjonalne}
+
+\subsection{Rejestracja i uwierzytelnianie}
+
+System obsługuje pełny cykl życia konta użytkownika:
+\begin{itemize}[noitemsep]
+    \item rejestracja nowego konta z walidacją adresu e-mail,
+    \item logowanie i wylogowanie z obsługą sesji,
+    \item reset hasła przez e-mail (token jednorazowy),
+    \item weryfikacja adresu e-mail,
+    \item zmiana hasła i danych profilowych,
+    \item usunięcie konta z usunięciem wszystkich powiązanych danych.
+\end{itemize}
+
+Moduł oparty jest na pakiecie \textit{Laravel Breeze} i nie wymaga modyfikacji.
+
+\subsection{Zarządzanie aktywnościami}
+
+Rdzeń funkcjonalności aplikacji umożliwia:
+\begin{itemize}[noitemsep]
+    \item ręczne dodanie aktywności (typ, dystans, czas, notatki),
+    \item import aktywności z pliku GPX -- aplikacja parsuje trasę i oblicza parametry,
+    \item przeglądanie listy aktywności z filtrowaniem po typie i paginacją,
+    \item wyświetlanie szczegółów aktywności wraz z interaktywną mapą trasy,
+    \item usuwanie aktywności.
+\end{itemize}
+
+Obsługiwane typy aktywności: bieg (\textit{running}), jazda na rowerze (\textit{cycling}), pływanie (\textit{swimming}) oraz inne.
+
+\subsection{Integracja z Garmin Connect}
+
+Aplikacja umożliwia:
+\begin{itemize}[noitemsep]
+    \item jednorazowy pełny import historii aktywności z konta Garmin Connect (do 1000 aktywności),
+    \item synchronizację nowych aktywności (brakujące od ostatniego importu),
+    \item pobranie szczegółowych danych aktywności Garmin: średnie i maksymalne tętno, spalone kalorie, prędkość maksymalna,
+    \item przechowywanie danych uwierzytelniających Garmin zaszyfrowanych w bazie danych.
+\end{itemize}
+
+\subsection{Dashboard i statystyki}
+
+Strona główna zalogowanego użytkownika prezentuje:
+\begin{itemize}[noitemsep]
+    \item karty podsumowania: łączny dystans, łączny czas, średnia prędkość,
+    \item wykres liniowy aktywności w czasie (za pomocą biblioteki Unovis),
+    \item tabelę ostatnich aktywności z najważniejszymi parametrami.
+\end{itemize}
+
+\subsection{Wizualizacja trasy na mapie}
+
+Dla aktywności zaimportowanych z pliku GPX lub Garmina dostępna jest interaktywna mapa oparta na bibliotece Leaflet z OpenStreetMap, prezentująca:
+\begin{itemize}[noitemsep]
+    \item narysowaną trasę aktywności,
+    \item marker punktu startowego i końcowego trasy.
+\end{itemize}
+
+\subsection{Logi aktywności użytkownika}
+
+System rejestruje kluczowe akcje użytkownika w tabeli \texttt{activity\_logs}:
+\begin{itemize}[noitemsep]
+    \item uruchomienie synchronizacji Garmin,
+    \item zakończenie synchronizacji Garmin,
+    \item utworzenie aktywności,
+    \item usunięcie aktywności.
+\end{itemize}
+
+\subsection{Internacjonalizacja}
+
+Interfejs dostępny jest w dwóch językach:
+\begin{itemize}[noitemsep]
+    \item \textbf{polskim} -- domyślnym (zmienna \texttt{APP\_LOCALE=pl}),
+    \item \textbf{angielskim} -- jako język zapasowy.
+\end{itemize}
+Tłumaczenia przechowywane są w plikach TypeScript \texttt{pl.ts} i \texttt{en.ts}.
+
+\subsection{Profil użytkownika}
+
+Moduł profilu pozwala użytkownikowi:
+\begin{itemize}[noitemsep]
+    \item zaktualizować imię i adres e-mail,
+    \item zmienić hasło,
+    \item podłączyć i zapisać dane logowania do konta Garmin Connect,
+    \item trwale usunąć konto.
+\end{itemize}
+
+\section{Diagram przepływu użytkownika}
+
+\begin{enumerate}
+    \item Nowy użytkownik rejestruje konto i weryfikuje e-mail.
+    \item Po zalogowaniu widzi pusty dashboard z zaproszeniem do dodania aktywności.
+    \item Użytkownik może ręcznie wpisać aktywność, wgrać plik GPX lub powiązać konto Garmin.
+    \item Po imporcie aktywności dashboard wyświetla statystyki i wykresy.
+    \item Kliknięcie aktywności otwiera szczegóły z mapą trasy (jeśli dostępna).
+    \item Regularne synchronizacje Garmin mogą być uruchamiane jednym kliknięciem.
+\end{enumerate}
+
+% ============================================================
+\chapter{Opis technologiczny}
+\label{ch:technologiczny}
+
+\section{Architektura ogólna}
+
+Aplikacja zbudowana jest w architekturze monolitycznej z wbudowanym podziałem na warstwy, opartej na wzorcu MVC rozszerzonym o warstwę serwisów. Komunikacja między backendem a frontendem odbywa się przez protokół \textbf{Inertia.js}, który eliminuje potrzebę budowania osobnego REST API -- backend zwraca komponenty Vue zamiast JSON.
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Warstwa}       & \textbf{Technologia}               \\
+\hline
+Backend framework      & Laravel 12 (PHP 8.2+)              \\
+Frontend framework     & Vue 3 + TypeScript                 \\
+Protokół SPA           & Inertia.js 2.0                     \\
+Baza danych            & PostgreSQL 18                      \\
+Bundler                & Vite 7                             \\
+Serwer deweloperski    & Laravel Sail (Docker)              \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Backend}
+
+\subsection{Laravel 12}
+
+Framework PHP w wersji 12 dostarcza:
+\begin{itemize}[noitemsep]
+    \item \textbf{Routing} -- deklaratywny w \texttt{routes/web.php} i \texttt{routes/auth.php},
+    \item \textbf{Eloquent ORM} -- mapowanie obiektowo-relacyjne dla PostgreSQL,
+    \item \textbf{Form Requests} -- walidacja danych wejściowych w osobnych klasach,
+    \item \textbf{Queue} -- asynchroniczne przetwarzanie zadań (driver: \texttt{database}),
+    \item \textbf{Cache} -- buforowanie danych (driver: \texttt{database}),
+    \item \textbf{Szyfrowanie} -- kolumna \texttt{garmin\_password} przechowywana zaszyfrowana (\texttt{encrypted} cast).
+\end{itemize}
+
+\subsection{Wzorzec Controller--Service}
+
+Kontrolery są celowo cienkie: nie zawierają logiki biznesowej, jedynie delegują pracę do warstwy serwisów.
+
+\begin{lstlisting}[language=PHP, caption=Przykładowy kontroler delegujący do serwisu]
+class DashboardController extends Controller
+{
+    public function __construct(
+        private readonly DashboardService $dashboard
+    ) {}
+
+    public function __invoke(Request $request): Response
+    {
+        return Inertia::render('Dashboard', [
+            'data' => $this->dashboard->getData(
+                auth()->guard()->user()
+            ),
+        ]);
+    }
+}
+\end{lstlisting}
+
+\subsection{Inertia.js}
+
+Inertia.js pełni rolę warstwy pośredniczącej między backendem a frontendem. Backend nie zwraca JSON, lecz wywołuje \texttt{Inertia::render('NazwaStrony', \$props)}, co powoduje załadowanie odpowiedniego komponentu Vue z danymi jako \textit{props}. Nawigacja po aplikacji odbywa się bez przeładowania strony (SPA), przy czym serwer zawsze kontroluje dane i routowanie.
+
+\subsection{Kluczowe serwisy}
+
+\subsubsection{GarminService}
+
+Odpowiada za komunikację z Garmin Connect przez pakiet \texttt{alexoid/laravel-garmin}:
+\begin{itemize}[noitemsep]
+    \item \texttt{importActivities()} -- pobiera do 1000 aktywności i zapisuje je w bazie,
+    \item \texttt{syncActivities()} -- pobiera wyłącznie aktywności nowsze niż ostatnia zapisana.
+\end{itemize}
+Prędkości z Garmin (w m/s) są przeliczane na km/h przez mnożnik $\times 3{,}6$.
+
+\subsubsection{GpxParser}
+
+Parsuje pliki GPX (format XML) i wyodrębnia:
+\begin{itemize}[noitemsep]
+    \item listę punktów trasy (szerokość/długość geograficzna, wysokość, czas),
+    \item całkowity dystans -- obliczony wzorem Haversine'a,
+    \item przewyższenie dodatnie (\textit{elevation gain}),
+    \item czas aktywności, datę, typ.
+\end{itemize}
+Dla wydajności trasa jest upraszczana do maksymalnie 500 punktów.
+
+\subsubsection{DashboardService}
+
+Agreguje dane dla dashboardu użytkownika:
+\begin{itemize}[noitemsep]
+    \item łączny dystans, łączny czas, średnia prędkość,
+    \item lista ostatnich aktywności,
+    \item dane szeregów czasowych dla wykresu.
+\end{itemize}
+
+\subsubsection{ActivityLogger}
+
+Rejestruje akcje użytkownika w tabeli \texttt{activity\_logs}. Zdefiniowane akcje:
+\texttt{GARMIN\_SYNC\_STARTED}, \texttt{GARMIN\_SYNC\_COMPLETED}, \texttt{ACTIVITY\_CREATED}, \texttt{ACTIVITY\_DELETED}.
+
+\subsection{Uwierzytelnianie}
+
+System uwierzytelniania oparty na \textbf{Laravel Breeze}:
+\begin{itemize}[noitemsep]
+    \item sesje przechowywane w bazie danych (tabela \texttt{sessions}),
+    \item middleware \texttt{auth} chroni wszystkie trasy wymagające zalogowania,
+    \item middleware \texttt{HandleInertiaRequests} eksponuje dane zalogowanego użytkownika (\texttt{auth.user}) do każdej strony Vue jako \textit{shared props}.
+\end{itemize}
+
+\section{Frontend}
+
+\subsection{Vue 3 + TypeScript}
+
+Interfejs użytkownika napisany jest w Vue 3 z Composition API (\texttt{<script setup lang="ts">}). TypeScript działa w trybie \textit{strict} -- wszystkie zmienne są typowane, użycie \texttt{any} jest zakazane.
+
+\subsection{Kluczowe biblioteki frontendowe}
+
+\begin{center}
+\begin{longtable}{|l|p{8cm}|}
+\hline
+\textbf{Biblioteka}       & \textbf{Zastosowanie}                              \\
+\hline
+Reka UI                   & Beznakładowe prymitywy UI (Dialog, DropdownMenu, Table i in.) \\
+\hline
+Tailwind CSS v4           & Utility-first CSS -- stylowanie komponentów       \\
+\hline
+Lucide Vue Next           & Ikony wektorowe SVG                               \\
+\hline
+Vue i18n 11               & Internacjonalizacja -- klucze tłumaczeń w szablonach \\
+\hline
+Vue Sonner                & Powiadomienia toast                               \\
+\hline
+Unovis                    & Wykresy liniowe (biblioteka wizualizacji danych)  \\
+\hline
+Leaflet + OpenStreetMap   & Interaktywna mapa tras GPS                        \\
+\hline
+TanStack Vue Table        & Tabela danych z sortowaniem i filtrowaniem        \\
+\hline
+Ziggy                     & Generowanie URL z nazwanych tras Laravel w JS     \\
+\hline
+VueUse                    & Utilities Composition API (hooks pomocnicze)      \\
+\hline
+\end{longtable}
+\end{center}
+
+\subsection{Struktura plików frontendowych}
+
+\begin{lstlisting}[caption=Struktura katalogu resources/js/]
+resources/js/
+├── Pages/           # Komponenty stron (1:1 z routami)
+│   ├── Activities/  # Widoki aktywności
+│   ├── Auth/        # Strony logowania/rejestracji
+│   ├── Dashboard/   # Komponenty dashboardu
+│   └── Profile/     # Profil użytkownika
+├── Components/
+│   └── ui/          # Prymitywy Reka UI (nie edytować)
+├── Layouts/         # AppLayout, GuestLayout
+├── i18n/            # pl.ts, en.ts, index.ts
+└── app.ts           # Punkt wejściowy aplikacji
+\end{lstlisting}
+
+\subsection{Konwencje frontendowe}
+
+\begin{itemize}[noitemsep]
+    \item Tylko \texttt{<script setup lang="ts">} -- zakaz używania Options API,
+    \item alias ścieżki \texttt{@/} mapuje na \texttt{resources/js/},
+    \item nawigacja przez komponent \texttt{<Link>} z Inertia (nie tagi \texttt{<a>}),
+    \item tryb ciemny (dark mode) -- każdy nowy komponent musi wspierać oba warianty,
+    \item formatowanie przez Prettier (pojedyncze cudzysłowy, średniki, 80 znaków, 2 spacje wcięcia).
+\end{itemize}
+
+\section{Środowisko deweloperskie}
+
+\subsection{Docker / Laravel Sail}
+
+Środowisko lokalne opiera się na \textbf{Laravel Sail} -- zestawie skryptów Docker skonfigurowanych dla Laravel. Sail uruchamia kontenery:
+\begin{itemize}[noitemsep]
+    \item \textbf{PHP/Laravel} -- serwer aplikacji,
+    \item \textbf{PostgreSQL 18} -- baza danych,
+    \item \textbf{Adminer} -- graficzny interfejs bazy danych dostępny pod adresem \texttt{http://localhost:8080},
+    \item \textbf{Node.js} -- kompilacja frontendu przez Vite.
+\end{itemize}
+
+\subsection{Dev Container}
+
+Projekt skonfigurowany jest dla \textbf{VS Code Dev Containers} -- jednorazowe otwarcie projektu w kontenerze zapewnia gotowe do pracy środowisko bez ręcznej instalacji zależności.
+
+\subsection{Haki pre-commit}
+
+\textbf{Husky} uruchamia automatycznie \texttt{pnpm lint-staged} przed każdym commitem:
+\begin{itemize}[noitemsep]
+    \item ESLint z auto-naprawą dla plików \texttt{.ts} / \texttt{.vue},
+    \item Prettier dla formatowania kodu,
+    \item Laravel Pint dla PHP.
+\end{itemize}
+Pomijanie haków przez \texttt{--no-verify} jest zakazane.
+
+% ============================================================
+\chapter{Diagramy UML}
+\label{ch:diagramy}
+
+\section{Diagram przypadków użycia (Use-Case)}
+
+Diagram przedstawia wszystkich aktorów systemu i przypadki użycia dostępne dla każdego z nich. Wyróżniono dwa aktory: \textbf{Użytkownik} (osoba zalogowana w aplikacji) oraz \textbf{Garmin Connect} (zewnętrzny system sportowy, z którym aplikacja integruje się przez API).
+
+\begin{figure}[p]
+\centering
+\includegraphics[height=0.85\textheight,keepaspectratio]{usecase.png}
+\caption{Diagram przypadków użycia systemu Strava Clone}
+\end{figure}
+
+\section{Diagram czynności (Activity)}
+
+Diagram czynności ilustruje przepływ sterowania dla scenariusza dodawania aktywności przez użytkownika. Uwzględniono trzy ścieżki: ręczne wprowadzenie danych, import z pliku GPX oraz synchronizację z Garmin Connect.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{activity.png}
+\caption{Diagram czynności -- dodawanie aktywności i synchronizacja z Garmin}
+\end{figure}
+
+\section{Diagram klas (Class)}
+
+Diagram klas przedstawia strukturę głównych klas systemu z podziałem na warstwy: modele Eloquent, serwisy logiki biznesowej i kontrolery. Strzałki przerywane oznaczają zależność użycia (\textit{uses}), strzałki ciągłe -- relacje między modelami (Eloquent relationships).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{class.png}
+\caption{Diagram klas -- modele, serwisy i kontrolery}
+\end{figure}
+
+\section{Diagram sekwencji (Sequence)}
+
+Diagram sekwencji opisuje kolejność wywołań metod podczas importu aktywności z pliku GPX -- od żądania HTTP przychodzącego od użytkownika, przez parsowanie pliku, zapis do bazy danych, aż po powiadomienie zwrotne.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{sequence.png}
+\caption{Diagram sekwencji -- import aktywności z pliku GPX}
+\end{figure}
+
+% ============================================================
+\chapter{Opis struktury bazy danych}
+\label{ch:baza}
+
+\section{System zarządzania bazą danych}
+
+Projekt wykorzystuje \textbf{PostgreSQL 18} uruchomiony w kontenerze Docker. Dostęp skonfigurowany jest w zmiennych środowiskowych:
+\begin{itemize}[noitemsep]
+    \item host: \texttt{pgsql},
+    \item port: \texttt{5432},
+    \item baza: \texttt{strava\_clone},
+    \item użytkownik: \texttt{sail}.
+\end{itemize}
+
+Schemat bazy zarządzany jest przez \textbf{Laravel Migrations} -- każda zmiana struktury to osobny, nieodwracalnie numerowany plik migracji.
+
+Do zarządzania bazą danych i inspekcji danych w środowisku deweloperskim służy \textbf{Adminer} -- lekki graficzny interfejs webowy uruchomiony jako osobny kontener Docker. Adminer dostępny jest pod adresem \texttt{http://localhost:8080} (port konfigurowalny przez zmienną środowiskową \texttt{ADMINER\_PORT}). Interfejs skonfigurowany jest z domyślnym serwerem \texttt{pgsql} oraz ciemnym motywem wizualnym (\textit{pepa-linha-dark}).
+
+\section{Tabele aplikacyjne}
+
+\subsection{Tabela \texttt{users}}
+
+Przechowuje dane zarejestrowanych użytkowników.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Kolumna}        & \textbf{Typ}              & \textbf{Opis}                        \\
+\hline
+id                      & BIGINT PK                 & Klucz główny (auto-increment)        \\
+name                    & VARCHAR                   & Imię i nazwisko użytkownika          \\
+email                   & VARCHAR UNIQUE            & Adres e-mail (unikalny)              \\
+email\_verified\_at     & TIMESTAMP NULL            & Data weryfikacji e-mail              \\
+password                & VARCHAR                   & Hash bcrypt hasła                    \\
+garmin\_email           & VARCHAR NULL              & E-mail do konta Garmin               \\
+garmin\_password        & TEXT NULL                 & Zaszyfrowane hasło Garmin            \\
+remember\_token         & VARCHAR NULL              & Token „zapamiętaj mnie"              \\
+created\_at             & TIMESTAMP                 & Data rejestracji                     \\
+updated\_at             & TIMESTAMP                 & Data ostatniej aktualizacji          \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsection{Tabela \texttt{activities}}
+
+Główna tabela aktywności fizycznych.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Kolumna}        & \textbf{Typ}              & \textbf{Opis}                        \\
+\hline
+id                      & BIGINT PK                 & Klucz główny                         \\
+user\_id                & BIGINT FK                 & Klucz obcy $\to$ \texttt{users.id}   \\
+type                    & VARCHAR                   & Typ aktywności (running/cycling/...)  \\
+distance                & FLOAT                     & Dystans w kilometrach                \\
+duration                & INTEGER                   & Czas trwania w sekundach             \\
+avg\_speed              & FLOAT                     & Średnia prędkość w km/h              \\
+max\_speed              & FLOAT NULL                & Maksymalna prędkość w km/h           \\
+avg\_hr                 & INTEGER NULL              & Średnie tętno (bpm)                  \\
+max\_hr                 & INTEGER NULL              & Maksymalne tętno (bpm)               \\
+calories                & INTEGER NULL              & Spalone kalorie (kcal)               \\
+date                    & DATE                      & Data aktywności                      \\
+notes                   & TEXT NULL                 & Notatki użytkownika                  \\
+garmin\_activity\_id    & VARCHAR NULL              & ID aktywności w Garmin Connect       \\
+created\_at             & TIMESTAMP                 & Data dodania rekordu                 \\
+updated\_at             & TIMESTAMP                 & Data ostatniej modyfikacji           \\
+\hline
+\end{tabularx}
+\end{center}
+
+\textit{Klucz obcy \texttt{user\_id} skonfigurowany z kaskadowym usuwaniem (ON DELETE CASCADE).}
+
+\subsection{Tabela \texttt{activity\_gpx}}
+
+Przechowuje dane trasy GPS powiązanej z aktywnością.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Kolumna}        & \textbf{Typ}              & \textbf{Opis}                        \\
+\hline
+id                      & BIGINT PK                 & Klucz główny                         \\
+activity\_id            & BIGINT FK UNIQUE          & Klucz obcy $\to$ \texttt{activities.id} \\
+route\_points           & JSON                      & Tablica punktów GPS [{lat, lng, ele, time}] \\
+gpx\_file\_path         & VARCHAR NULL              & Ścieżka do oryginalnego pliku GPX    \\
+elevation\_gain         & FLOAT NULL                & Przewyższenie dodatnie w metrach     \\
+created\_at             & TIMESTAMP                 & Data dodania                         \\
+updated\_at             & TIMESTAMP                 & Data modyfikacji                     \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsection{Tabela \texttt{activity\_logs}}
+
+Rejestr akcji wykonanych przez użytkowników.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Kolumna}        & \textbf{Typ}              & \textbf{Opis}                        \\
+\hline
+id                      & BIGINT PK                 & Klucz główny                         \\
+user\_id                & BIGINT FK                 & Klucz obcy $\to$ \texttt{users.id}   \\
+action                  & VARCHAR(100)              & Typ akcji (stała tekstowa)           \\
+created\_at             & TIMESTAMP                 & Znacznik czasu akcji                 \\
+\hline
+\end{tabularx}
+\end{center}
+
+Tabela nie posiada kolumny \texttt{updated\_at} (immutable log). Indeksy założone na kolumnach \texttt{action} oraz \texttt{(user\_id, created\_at)}.
+
+\section{Tabele systemowe Laravel}
+
+\subsection{Tabela \texttt{sessions}}
+
+Przechowuje sesje użytkowników (driver: \texttt{database}).
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Kolumna}  & \textbf{Opis}               \\
+\hline
+id (PK)           & Token sesji                 \\
+user\_id          & FK do \texttt{users} (nullable) \\
+ip\_address       & Adres IP klienta            \\
+user\_agent       & User-Agent przeglądarki     \\
+payload           & Dane sesji (LONGTEXT)       \\
+last\_activity    & Timestamp ostatniej aktywności \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Tabela \texttt{jobs} i \texttt{failed\_jobs}}
+
+Kolejka zadań asynchronicznych (driver: \texttt{database}). Tabela \texttt{jobs} przechowuje oczekujące zadania, \texttt{failed\_jobs} rejestruje nieudane próby.
+
+\subsection{Tabela \texttt{cache}}
+
+Bufor danych (driver: \texttt{database}) -- pary klucz--wartość z czasem wygasania.
+
+\subsection{Tabela \texttt{password\_reset\_tokens}}
+
+Jednokrotne tokeny resetowania hasła powiązane z adresem e-mail.
+
+\section{Diagram relacji encji}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{erd.png}
+\caption{Diagram relacji encji bazy danych}
+\end{figure}
+
+\section{Więzy integralności}
+
+\subsection{Klucze obce i usuwanie kaskadowe}
+
+Wszystkie relacje między tabelami aplikacyjnymi zabezpieczone są kluczami obcymi z kaskadowym usuwaniem (\texttt{ON DELETE CASCADE}). Oznacza to, że usunięcie rekordu nadrzędnego automatycznie usuwa wszystkie powiązane rekordy podrzędne -- nie ma możliwości pozostawienia osieroconych danych.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Tabela} & \textbf{Kolumna FK} & \textbf{Ref. tabela} & \textbf{Zachowanie przy usunięciu} \\
+\hline
+activities      & user\_id            & users.id             & CASCADE -- usunięcie użytkownika usuwa wszystkie jego aktywności \\
+\hline
+activity\_gpx   & activity\_id        & activities.id        & CASCADE -- usunięcie aktywności usuwa dane trasy GPS \\
+\hline
+activity\_logs  & user\_id            & users.id             & CASCADE -- usunięcie użytkownika usuwa jego logi \\
+\hline
+sessions        & user\_id            & users.id             & SET NULL -- usunięcie użytkownika unieważnia sesje \\
+\hline
+\end{tabularx}
+\end{center}
+
+Dzięki takiej konfiguracji operacja \texttt{DELETE} na tabeli \texttt{users} jest bezpieczna i atomowa -- baza danych gwarantuje spójność bez konieczności ręcznego usuwania powiązanych rekordów w kodzie aplikacji.
+
+\subsection{Ograniczenia unikalności}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Tabela}    & \textbf{Kolumna}      & \textbf{Uzasadnienie}                        \\
+\hline
+users              & email                 & Każdy adres e-mail może być przypisany do jednego konta \\
+\hline
+activity\_gpx      & activity\_id          & Jedna aktywność może mieć co najwyżej jeden rekord trasy GPS \\
+\hline
+failed\_jobs       & uuid                  & Unikalny identyfikator nieudanego zadania kolejki \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsection{Indeksy}
+
+Poniżej zestawiono indeksy założone na kolumnach najczęściej używanych w klauzulach \texttt{WHERE} i \texttt{ORDER BY}:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Tabela}    & \textbf{Indeksowane kolumny}        & \textbf{Cel}                              \\
+\hline
+users              & email (UNIQUE)                      & Wyszukiwanie użytkownika podczas logowania \\
+\hline
+activity\_logs     & action                              & Filtrowanie logów po typie akcji          \\
+\hline
+activity\_logs     & (user\_id, created\_at)             & Złożony indeks -- pobieranie logów użytkownika posortowanych chronologicznie \\
+\hline
+sessions           & user\_id                            & Wyszukiwanie sesji należących do użytkownika \\
+\hline
+sessions           & last\_activity                      & Czyszczenie wygasłych sesji               \\
+\hline
+cache              & expiration                          & Czyszczenie wygasłych wpisów cache        \\
+\hline
+jobs               & queue                               & Pobieranie zadań z konkretnej kolejki     \\
+\hline
+\end{tabularx}
+\end{center}
+
+\section{Iteracyjny rozwój schematu bazy danych}
+
+Schemat bazy danych powstawał iteracyjnie -- każda zmiana struktury to osobny, wersjonowany plik migracji. Podejście to gwarantuje pełną historię zmian w repozytorium Git oraz możliwość odtworzenia dowolnego stanu schematu przez uruchomienie migracji w górę (\texttt{migrate}) lub w dół (\texttt{migrate:rollback}).
+
+\begin{center}
+\begin{longtable}{|l|p{4.5cm}|p{5.5cm}|}
+\hline
+\textbf{Data} & \textbf{Plik migracji} & \textbf{Zmiana} \\
+\hline
+\endhead
+2026-03-30 & create\_activities\_table & Pierwsza wersja tabeli \texttt{activities} z kolumnami bazowymi i kolumną \texttt{weather\_json} (JSON) \\
+\hline
+2026-04-29 & create\_activity\_gpx\_table & Nowa tabela \texttt{activity\_gpx} przechowująca punkty trasy GPS; FK do \texttt{activities} z CASCADE \\
+\hline
+2026-04-29 & update\_activities\_table & Usunięcie \texttt{weather\_json} (dane pogodowe poza zakresem projektu); dodanie \texttt{avg\_speed} -- normalizacja schematu \\
+\hline
+2026-05-02 & create\_activity\_logs\_table & Tabela \texttt{activity\_logs} (immutable log zdarzeń) z indeksami na \texttt{action} i \texttt{(user\_id, created\_at)} \\
+\hline
+2026-05-07 & add\_garmin\_activity\_id & Dodanie \texttt{garmin\_activity\_id} do \texttt{activities} -- klucz obcy do Garmin Connect, zapobiega duplikatom przy synchronizacji \\
+\hline
+2026-05-07 & add\_stats\_to\_activities & Dodanie kolumn \texttt{avg\_hr}, \texttt{max\_hr}, \texttt{max\_speed}, \texttt{calories} -- rozszerzenie danych ze źródeł Garmin \\
+\hline
+2026-05-07 & add\_garmin\_credentials\_to\_users & Dodanie \texttt{garmin\_email} i \texttt{garmin\_password} do tabeli \texttt{users} -- przechowywanie zaszyfrowanych danych Garmin \\
+\hline
+\end{longtable}
+\end{center}
+
+Każdy plik migracji implementuje metody \texttt{up()} (aplikacja zmiany) i \texttt{down()} (cofnięcie zmiany), co umożliwia pełny rollback do dowolnego punktu w historii schematu.
+
+\section{Seedery i dane testowe}
+
+\subsection{DatabaseSeeder}
+
+Seeder wypełnia bazę danych wygenerowanymi danymi testowymi, umożliwiając szybkie uruchomienie aplikacji z realistycznym zestawem rekordów bez ręcznego wprowadzania danych.
+
+\textbf{Działanie \texttt{DatabaseSeeder::run()}:}
+\begin{enumerate}[noitemsep]
+    \item Tworzy (lub odnajduje) stałego użytkownika demonstracyjnego \texttt{nadia@doe.com} z hasłem \texttt{password}.
+    \item Generuje 50 aktywności powiązanych z tym użytkownikiem.
+    \item Tworzy 100 losowych użytkowników przy użyciu \texttt{UserFactory}.
+    \item Generuje 1000 dodatkowych aktywności przypisywanych losowo do wszystkich 101 użytkowników.
+\end{enumerate}
+
+Po uruchomieniu seeda baza zawiera łącznie \textbf{101 użytkowników} i \textbf{1050 aktywności}.
+
+\subsection{ActivityFactory}
+
+\texttt{ActivityFactory} generuje realistyczne dane aktywności z użyciem biblioteki Faker:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Kolumna} & \textbf{Generowana wartość} \\
+\hline
+type             & losowo: running / cycling / swimming \\
+distance         & losowa liczba zmiennoprzecinkowa 0{,}1--100 km \\
+duration         & losowa liczba całkowita 10--300 minut \\
+date             & losowa data \\
+notes            & losowe zdanie w języku angielskim \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Uruchomienie seederów}
+
+\begin{lstlisting}[language=bash, numbers=none]
+# Samo uruchomienie seederów (bez czyszczenia bazy)
+php artisan db:seed
+
+# Czyszczenie bazy i ponowna migracja + seed (środowisko deweloperskie)
+php artisan migrate:fresh --seed
+\end{lstlisting}
+
+% ============================================================
+\chapter{Wdrożone zagadnienia kwalifikacyjne}
+\label{ch:zagadnienia}
+
+Poniżej wyszczególnione zostały zagadnienia techniczne i architektoniczne wdrożone w projekcie, stanowiące o dojrzałości technicznej rozwiązania.
+
+\section{Architektura i wzorce projektowe}
+
+\begin{enumerate}
+
+\item \textbf{Wzorzec MVC z warstwą serwisów} \\
+Aplikacja stosuje wzorzec Model--Widok--Kontroler rozszerzony o dedykowaną warstwę serwisów. Kontrolery delegują całą logikę biznesową do klas serwisowych (\texttt{GarminService}, \texttt{DashboardService}, \texttt{GpxParser}), pozostając cienkimi adapterami między routingiem a logiką.
+
+\item \textbf{Architektura SPA z Inertia.js} \\
+Zamiast tradycyjnego REST API + osobna aplikacja SPA, projekt stosuje Inertia.js jako protokół łączący Laravel z Vue 3. Backend renderuje komponenty Vue z danymi bez konieczności budowania i utrzymywania API JSON. Nawigacja odbywa się bez przeładowania strony.
+
+\item \textbf{Dependency Injection} \\
+Serwisy wstrzykiwane są przez konstruktory kontrolerów za pośrednictwem kontenera IoC Laravel. Przykład: \texttt{DashboardController} deklaruje zależność od \texttt{DashboardService} przez typowanie konstruktora.
+
+\item \textbf{Repozytorium zdarzeń -- Activity Logs} \\
+Zaimplementowano niezmienny rejestr zdarzeń (append-only log) w tabeli \texttt{activity\_logs}, rejestrujący kluczowe akcje z sygnaturą czasową. Tabela nie posiada kolumny \texttt{updated\_at} i nigdy nie jest aktualizowana -- jedynie dopisywana.
+
+\end{enumerate}
+
+\section{Bezpieczeństwo}
+
+\begin{enumerate}[resume]
+
+\item \textbf{Szyfrowanie wrażliwych danych} \\
+Hasła do konta Garmin Connect przechowywane są w bazie danych z użyciem wbudowanego mechanizmu szyfrowania Laravel (cast \texttt{encrypted}). Klucz szyfrowania pochodzi z \texttt{APP\_KEY}.
+
+\item \textbf{Haszowanie haseł} \\
+Hasła użytkowników haszowane są algorytmem bcrypt (12 rund, konfigurowane przez \texttt{BCRYPT\_ROUNDS}), nigdy nie przechowywane w postaci jawnej.
+
+\item \textbf{Izolacja danych między użytkownikami} \\
+Każde zapytanie do tabeli \texttt{activities} scopowane jest do zalogowanego użytkownika (\texttt{WHERE user\_id = ?}). Brak możliwości dostępu do cudzych aktywności.
+
+\item \textbf{Walidacja danych wejściowych} \\
+Dane formularzy walidowane są w dedykowanych klasach \texttt{Http/Requests/} przed dotarciem do kontrolerów. Walidacja po stronie serwera jest obowiązkowa -- nie polegamy wyłącznie na walidacji frontendu.
+
+\item \textbf{Autoryzacja tras} \\
+Middleware \texttt{auth} chroni wszystkie trasy wymagające zalogowania. Trasy dostępne dla gości (rejestracja, logowanie) otoczone są middleware \texttt{guest}, uniemożliwiającym dostęp po zalogowaniu.
+
+\item \textbf{CSRF Protection} \\
+Laravel automatycznie weryfikuje tokeny CSRF dla wszystkich żądań zmieniających stan (POST, PUT, PATCH, DELETE). Inertia.js dołącza token do nagłówków żądań.
+
+\end{enumerate}
+
+\section{Integracje zewnętrzne}
+
+\begin{enumerate}[resume]
+
+\item \textbf{Integracja z Garmin Connect API} \\
+Wdrożono dwutrybow\`a integrację z platformą Garmin Connect przez pakiet \texttt{alexoid/laravel-garmin}: pełny import historii oraz inkrementalna synchronizacja nowych aktywności. Przeliczanie jednostek (m/s $\to$ km/h).
+
+\item \textbf{Parser plików GPX} \\
+Zaimplementowano własny parser plików GPS Exchange Format (XML). Parser oblicza dystans wzorem Haversine'a, wyznacza przewyższenie dodatnie i upraszcza trasę algorytmem Douglas--Peucker do 500 punktów dla wydajności.
+
+\item \textbf{Mapa interaktywna -- Leaflet + OpenStreetMap} \\
+Trasy aktywności wizualizowane są na interaktywnej mapie z kafli OpenStreetMap, bez konieczności korzystania z płatnych API map.
+
+\end{enumerate}
+
+\section{Frontend i UX}
+
+\begin{enumerate}[resume]
+
+\item \textbf{Tryb ciemny (Dark Mode)} \\
+Interfejs w pełni wspiera tryb ciemny Tailwind CSS. Każdy komponent definiuje warianty dla jasnego i ciemnego motywu.
+
+\item \textbf{Internacjonalizacja (i18n)} \\
+Aplikacja obsługuje dwa języki (polski i angielski) z użyciem Vue i18n. Żadny widoczny ciąg znaków nie jest hardkodowany w szablonach -- wszystko przechodzi przez klucze tłumaczeń.
+
+\item \textbf{Powiadomienia Toast} \\
+System flash-wiadomości zintegrowany między backendem (Inertia flash) a frontendem (Vue Sonner). Backend ustawia komunikat, frontend wyświetla powiadomienie bez dodatkowego kodu po stronie stron.
+
+\item \textbf{Komponenty headless UI -- Reka UI} \\
+Prymitywy interfejsu (okna dialogowe, menu rozwijane, tabele) zbudowane są na bazie biblioteki Reka UI (fork Radix Vue), zapewniającej pełną dostępność (a11y) i poprawne zarządzanie focusem klawiatury.
+
+\item \textbf{Wykresy danych -- Unovis} \\
+Dashboard prezentuje wykres liniowy aktywności z użyciem biblioteki Unovis, dedykowanej do wizualizacji danych w aplikacjach Vue.
+
+\end{enumerate}
+
+\section{Jakość kodu i DevOps}
+
+\begin{enumerate}[resume]
+
+\item \textbf{TypeScript Strict Mode} \\
+Cały frontend pisany jest w TypeScript z włączonym trybem \textit{strict} (\texttt{vue-tsc} jako sprawdzanie typów). Użycie \texttt{any} jest zakazane.
+
+\item \textbf{Automatyczne formatowanie i lintowanie} \\
+Pipeline jakości kodu: Prettier (formatowanie), ESLint (lintowanie TypeScript/Vue), Laravel Pint (formatowanie PHP). Haki Husky uruchamiają \texttt{lint-staged} automatycznie przed każdym commitem.
+
+\item \textbf{Konteneryzacja -- Docker / Laravel Sail} \\
+Środowisko deweloperskie w pełni skonteneryzowane, uruchamiane jedną komendą. VS Code Dev Containers pozwala na natychmiastowe uruchomienie projektu bez instalacji zależności na hoście.
+
+\item \textbf{Migracje bazy danych} \\
+Każda zmiana schematu bazy to osobny, wersjonowany plik migracji Laravel. Historia zmian schematu jest częścią historii Git i pozwala na odtworzenie dowolnego stanu bazy.
+
+\item \textbf{Graficzny interfejs bazy danych -- Adminer} \\
+Do środowiska deweloperskiego dołączony jest kontener \textbf{Adminer} -- webowy klient PostgreSQL dostępny pod adresem \texttt{http://localhost:8080}. Narzędzie umożliwia przeglądanie i edycję danych, podgląd struktury tabel oraz wykonywanie zapytań SQL bez konieczności korzystania z wiersza poleceń. Kontener skonfigurowany jest z domyślnym serwerem \texttt{pgsql} i ciemnym motywem wizualnym.
+
+\item \textbf{Kolejkowanie zadań} \\
+Synchronizacja z Garmin wykonywana jest za pośrednictwem kolejki zadań Laravel (driver: \texttt{database}), co pozwala na asynchroniczne wykonywanie długotrwałych operacji bez blokowania odpowiedzi HTTP.
+
+\item \textbf{Leniwy zapis danych trasy GPS (lazy persistence)} \\
+Dane trasy GPS dla aktywności Garmin pobierane są z API Garmin tylko przy pierwszym wyświetleniu mapy, a następnie trwale zapisywane w tabeli \texttt{activity\_gpx}. Każde kolejne otwarcie mapy korzysta z bazy danych -- bez ponownego zapytania do API Garmin. Tokeny OAuth Garmin przechowywane są osobno w cache Laravel (\texttt{LaravelCacheTokenStore}).
+
+\end{enumerate}
+
+\section{Testowanie i optymalizacja}
+
+\begin{enumerate}[resume]
+
+\item \textbf{Testowanie poprawności operacji CRUD} \\
+Każda z czterech operacji na aktywności została zweryfikowana manualnie:
+\begin{itemize}[noitemsep]
+    \item \textbf{Create} -- ręczne dodanie aktywności przez formularz; weryfikacja zapisu w bazie i wyświetlenia na liście aktywności,
+    \item \textbf{Read} -- przeglądanie listy aktywności z filtrowaniem po typie i paginacją; weryfikacja poprawności wyświetlanych danych,
+    \item \textbf{Update} -- edycja danych aktywności; weryfikacja zapisu zmian,
+    \item \textbf{Delete} -- usunięcie aktywności; weryfikacja kaskadowego usunięcia rekordu z tabeli \texttt{activity\_gpx} oraz pojawienia się wpisu w \texttt{activity\_logs}.
+\end{itemize}
+Testy przeprowadzono również dla importu z pliku GPX i synchronizacji Garmin, weryfikując poprawność parsowania danych i wykrywania duplikatów na podstawie \texttt{garmin\_activity\_id}.
+
+\item \textbf{Optymalizacja zapytań przez indeksy} \\
+Najczęściej wykonywane zapytania zostały zabezpieczone indeksami na poziomie migracji:
+\begin{itemize}[noitemsep]
+    \item \texttt{users.email} -- indeks unikalny przyspiesza wyszukiwanie użytkownika podczas logowania (operacja \texttt{WHERE email = ?}),
+    \item \texttt{activity\_logs(user\_id, created\_at)} -- złożony indeks pokrywający zapytania pobierające logi konkretnego użytkownika posortowane chronologicznie,
+    \item \texttt{activity\_logs(action)} -- indeks filtrowania logów po typie akcji.
+\end{itemize}
+Kolumna \texttt{activities.user\_id} korzysta z indeksu automatycznie tworzonego przez Laravel przy definicji klucza obcego (\texttt{foreignId}), co przyspiesza scopowanie zapytań do zalogowanego użytkownika (\texttt{WHERE user\_id = ?}).
+
+\item \textbf{Normalizacja schematu} \\
+W trakcie iteracyjnego rozwoju projektu przeprowadzono normalizację schematu: dane trasy GPS wydzielono do osobnej tabeli \texttt{activity\_gpx} (zamiast przechowywania w kolumnie JSON w tabeli \texttt{activities}). Dzięki temu zapytania do listy aktywności nie pobierają potencjalnie dużych danych trasy -- relacja \texttt{gpxData()} ładowana jest wyłącznie na żądanie (\textit{lazy loading}) przy wyświetleniu szczegółów aktywności. Eliminuje to problem N+1 na liście zbiorczej.
+
+\end{enumerate}
+
+% ============================================================
+\chapter{Instrukcja uruchomienia systemu}
+\label{ch:uruchomienie}
+
+\section{Wymagania wstępne}
+
+\subsection{Uruchomienie lokalne (Dev Container)}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Docker Desktop} -- wersja 4.0 lub nowsza,
+    \item \textbf{Visual Studio Code} z rozszerzeniem \textit{Dev Containers} (\texttt{ms-vscode-remote.remote-containers}),
+    \item konto Garmin Connect (opcjonalnie, wymagane do integracji Garmin).
+\end{itemize}
+
+\subsection{Uruchomienie zdalne / produkcyjne}
+
+\begin{itemize}[noitemsep]
+    \item serwer Linux z PHP 8.2+, Node.js 20+, Composer, PostgreSQL 18,
+    \item lub środowisko Docker z możliwością uruchomienia \texttt{docker-compose}.
+\end{itemize}
+
+\section{Uruchomienie lokalne (Dev Container -- zalecane)}
+
+\subsection{Krok 1: Sklonowanie repozytorium}
+
+\begin{lstlisting}[language=bash, numbers=none]
+git clone https://github.com/Console-dungeon/strava-clone.git
+cd strava-clone
+\end{lstlisting}
+
+\subsection{Krok 2: Inicjalizacja środowiska}
+
+\begin{lstlisting}[language=bash, numbers=none]
+make init
+\end{lstlisting}
+
+Komenda \texttt{make init} wykonuje:
+\begin{enumerate}[noitemsep]
+    \item kopiuje \texttt{.env.example} $\to$ \texttt{.env},
+    \item instaluje zależności PHP przez Composer (\texttt{composer install}).
+\end{enumerate}
+
+\subsection{Krok 3: Otwarcie w kontenerze}
+
+W VS Code: \texttt{Ctrl+Shift+P} $\to$ \textit{Dev Containers: Reopen in Container}.
+
+VS Code automatycznie:
+\begin{enumerate}[noitemsep]
+    \item zbuduje kontenery Docker (PHP, PostgreSQL, Node.js),
+    \item zainstaluje zależności Node.js,
+    \item skonfiguruje środowisko.
+\end{enumerate}
+
+\subsection{Krok 4: Migracja bazy danych}
+
+\begin{lstlisting}[language=bash, numbers=none]
+php artisan migrate
+\end{lstlisting}
+
+\subsection{Krok 5: Uruchomienie serwera deweloperskiego}
+
+\begin{lstlisting}[language=bash, numbers=none]
+composer dev
+\end{lstlisting}
+
+Komenda uruchamia równolegle (za pomocą \texttt{concurrently}):
+\begin{itemize}[noitemsep]
+    \item \texttt{php artisan serve} -- serwer PHP na porcie 8000,
+    \item \texttt{php artisan queue:listen} -- worker kolejki,
+    \item \texttt{pnpm run dev} -- serwer Vite (hot-reload frontendu).
+\end{itemize}
+
+Aplikacja dostępna pod adresem: \texttt{http://localhost:8000}
+
+\subsection{Alternatywne uruchomienie przez F5}
+
+Projekt skonfigurowany jest dla debuggera VS Code. Naciśnięcie klawisza \textbf{F5} uruchamia serwer deweloperski z aktywnym debuggerem PHP.
+
+\section{Konfiguracja integracji Garmin (opcjonalne)}
+
+\begin{enumerate}
+    \item Zaloguj się do aplikacji i przejdź do strony \textbf{Profil}.
+    \item W sekcji \textit{Garmin Connect} wpisz adres e-mail i hasło konta Garmin.
+    \item Kliknij \textit{Zapisz} -- dane zostaną zaszyfrowane i zapisane w bazie.
+    \item Na dashboardzie użyj przycisku \textbf{Importuj z Garmin} (jednorazowy pełny import) lub \textbf{Synchronizuj} (tylko nowe aktywności).
+\end{enumerate}
+
+\section{Uruchomienie zdalne / produkcyjne}
+
+\subsection{Krok 1: Przygotowanie serwera}
+
+Upewnij się, że na serwerze zainstalowane są:
+\begin{lstlisting}[language=bash, numbers=none]
+php --version   # >= 8.2
+node --version  # >= 20
+composer --version
+psql --version  # PostgreSQL >= 15
+\end{lstlisting}
+
+\subsection{Krok 2: Sklonowanie i konfiguracja}
+
+\begin{lstlisting}[language=bash, numbers=none]
+git clone https://github.com/Console-dungeon/strava-clone.git
+cd strava-clone
+cp .env.example .env
+\end{lstlisting}
+
+\subsection{Krok 3: Konfiguracja zmiennych środowiskowych}
+
+Edytuj plik \texttt{.env} i ustaw:
+
+\begin{lstlisting}[numbers=none]
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://twoja-domena.pl
+
+DB_CONNECTION=pgsql
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=strava_clone
+DB_USERNAME=uzytkownik
+DB_PASSWORD=twoje_haslo
+
+QUEUE_CONNECTION=database
+SESSION_DRIVER=database
+CACHE_STORE=database
+\end{lstlisting}
+
+\subsection{Krok 4: Instalacja zależności i build}
+
+\begin{lstlisting}[language=bash, numbers=none]
+# Zależności PHP (bez deweloperskich)
+composer install --no-dev --optimize-autoloader
+
+# Wygenerowanie klucza aplikacji
+php artisan key:generate
+
+# Zależności Node.js i build frontendu
+npm install
+npm run build
+
+# Migracja bazy danych
+php artisan migrate --force
+
+# Optymalizacja konfiguracji
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+\end{lstlisting}
+
+\subsection{Krok 5: Konfiguracja serwera WWW}
+
+\textbf{Nginx} (przykładowa konfiguracja):
+
+\begin{lstlisting}[numbers=none]
+server {
+    listen 80;
+    server_name twoja-domena.pl;
+    root /var/www/strava-clone/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+\end{lstlisting}
+
+\subsection{Krok 6: Uruchomienie workera kolejki}
+
+Worker kolejki jest wymagany do działania synchronizacji Garmin:
+
+\begin{lstlisting}[language=bash, numbers=none]
+# Uruchomienie przez Supervisor (zalecane na produkcji)
+php artisan queue:work --sleep=3 --tries=3
+
+# Lub jako proces systemd / supervisor
+\end{lstlisting}
+
+\subsection{Krok 7: Uprawnienia katalogów}
+
+\begin{lstlisting}[language=bash, numbers=none]
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+\end{lstlisting}
+
+\section{Przydatne komendy}
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Komenda}                      & \textbf{Działanie}                       \\
+\hline
+\texttt{composer dev}                 & Uruchomienie serwera deweloperskiego      \\
+\texttt{php artisan migrate}          & Wykonanie migracji bazy danych            \\
+\texttt{php artisan migrate:rollback} & Cofnięcie ostatniej migracji              \\
+\texttt{pnpm lint}                    & Lintowanie kodu TypeScript/Vue            \\
+\texttt{pnpm format}                  & Formatowanie kodu Prettier                \\
+\texttt{./vendor/bin/pint}            & Formatowanie kodu PHP                     \\
+\texttt{pnpm build}                   & Build produkcyjny frontendu               \\
+\texttt{php artisan queue:listen}     & Nasłuchiwanie na zadania kolejki          \\
+\texttt{php artisan tinker}           & Interaktywna konsola Laravel              \\
+\hline
+\end{tabular}
+\end{center}
+
+% ============================================================
+\chapter{Dokumentacja użytkowa}
+\label{ch:uzytkownik}
+
+\section{Opis funkcji i możliwości}
+
+Strava Clone to aplikacja webowa do rejestrowania i analizowania aktywności fizycznych. Główne możliwości dostępne dla użytkownika:
+
+\begin{itemize}
+    \item \textbf{Rejestracja i logowanie} -- zakładanie konta, weryfikacja e-mail, reset hasła.
+    \item \textbf{Dashboard} -- podgląd łącznego dystansu, czasu i średniej prędkości ze wszystkich aktywności; wykres aktywności w czasie; tabela ostatnich treningów.
+    \item \textbf{Dodawanie aktywności ręcznie} -- wpisanie typu (bieg, rower, pływanie), dystansu, czasu trwania, daty i opcjonalnych notatek.
+    \item \textbf{Import z pliku GPX} -- wgranie pliku trasy z zegarka lub aplikacji GPS; aplikacja automatycznie oblicza dystans, czas i przewyższenie oraz rysuje trasę na mapie.
+    \item \textbf{Integracja z Garmin Connect} -- jednorazowy pełny import historii aktywności (do 1000) lub synchronizacja tylko nowych treningów.
+    \item \textbf{Mapa trasy} -- interaktywna mapa z narysowaną trasą i markerami startu/mety (dla aktywności GPX i Garmin).
+    \item \textbf{Filtrowanie i paginacja} -- filtrowanie listy aktywności według typu (bieg/rower/pływanie) oraz przeglądanie z podziałem na strony.
+    \item \textbf{Usuwanie aktywności} -- trwałe usunięcie aktywności wraz z danymi trasy GPS.
+    \item \textbf{Zarządzanie profilem} -- zmiana imienia, adresu e-mail, hasła, podpięcie konta Garmin lub usunięcie konta.
+    \item \textbf{Tryb ciemny} -- automatyczne wsparcie dla jasnego i ciemnego motywu systemowego.
+    \item \textbf{Język interfejsu} -- aplikacja dostępna w języku polskim i angielskim.
+\end{itemize}
+
+\section{Instrukcja obsługi}
+
+\subsection{Rejestracja i pierwsze logowanie}
+
+\begin{enumerate}[noitemsep]
+    \item Otwórz aplikację pod adresem \texttt{http://localhost:8000}.
+    \item Kliknij \textbf{Zarejestruj się} i wypełnij formularz (imię, e-mail, hasło).
+    \item Potwierdź adres e-mail klikając link w otrzymanej wiadomości.
+    \item Zaloguj się podając e-mail i hasło.
+\end{enumerate}
+
+\subsection{Dodawanie aktywności ręcznie}
+
+\begin{enumerate}[noitemsep]
+    \item Na dashboardzie kliknij \textbf{Dodaj aktywność}.
+    \item Wybierz typ aktywności (Bieganie / Jazda na rowerze / Pływanie).
+    \item Wpisz dystans (w km), czas trwania (w minutach), datę i opcjonalne notatki.
+    \item Kliknij \textbf{Zapisz} -- aktywność pojawi się na liście i w statystykach dashboardu.
+\end{enumerate}
+
+\subsection{Import aktywności z pliku GPX}
+
+\begin{enumerate}[noitemsep]
+    \item Na stronie listy aktywności kliknij \textbf{Importuj GPX}.
+    \item Wybierz plik \texttt{.gpx} z dysku (eksportowany z Garmina, Stravacompatible, itp.).
+    \item Aplikacja automatycznie wyliczy dystans, czas i przewyższenie -- kliknij \textbf{Importuj}.
+    \item Po imporcie możesz otworzyć aktywność i zobaczyć trasę na mapie.
+\end{enumerate}
+
+\subsection{Synchronizacja z Garmin Connect}
+
+\begin{enumerate}[noitemsep]
+    \item Przejdź do \textbf{Profil} i w sekcji \textit{Garmin Connect} wpisz e-mail i hasło konta Garmin. Kliknij \textbf{Zapisz}.
+    \item Wróć na Dashboard.
+    \item Kliknij \textbf{Importuj z Garmin} -- pobierze całą historię aktywności (do 1000).
+    \item Przy kolejnych wizytach kliknij \textbf{Synchronizuj} -- pobierze tylko nowe aktywności.
+\end{enumerate}
+
+\subsection{Przeglądanie aktywności}
+
+\begin{enumerate}[noitemsep]
+    \item Przejdź do zakładki \textbf{Aktywności}.
+    \item Użyj filtrów na górze listy, aby wyświetlić tylko wybrany typ (np. Bieganie).
+    \item Kliknij aktywność na liście, aby zobaczyć szczegóły -- parametry i mapę trasy.
+    \item Aby usunąć aktywność, kliknij ikonę kosza przy wybranym rekordzie i potwierdź.
+\end{enumerate}
+
+\section{Pytania i odpowiedzi (FAQ)}
+
+\textbf{Q: Zapomniałem hasła. Co zrobić?} \\
+A: Na stronie logowania kliknij \textit{Nie pamiętasz hasła?}, podaj adres e-mail i kliknij \textit{Wyślij link}. Otrzymasz wiadomość z linkiem do ustawienia nowego hasła. Link jest jednorazowy i wygasa po 60 minutach.
+
+\vspace{0.5em}
+\textbf{Q: Czy mogę importować aktywności zarówno z GPX, jak i z Garmin?} \\
+A: Tak. Obie metody działają niezależnie. Aplikacja wykrywa duplikaty aktywności Garmin po unikalnym identyfikatorze \texttt{garmin\_activity\_id}, więc synchronizacja nie zduplikuje wcześniej zaimportowanych rekordów.
+
+\vspace{0.5em}
+\textbf{Q: Dlaczego na mapie nie widać trasy dla ręcznie dodanej aktywności?} \\
+A: Mapa wyświetlana jest tylko dla aktywności, które zawierają dane GPS (zaimportowanych z pliku GPX lub z Garmin Connect). Aktywności dodane ręcznie nie posiadają punktów trasy.
+
+\vspace{0.5em}
+\textbf{Q: Czy moje hasło do Garmin Connect jest bezpieczne?} \\
+A: Tak. Hasło przechowywane jest w bazie danych w formie zaszyfrowanej (algorytm AES-256 przez mechanizm \texttt{encrypted} Laravel). Klucz szyfrowania nie jest zapisany w bazie danych, lecz w zmiennej środowiskowej \texttt{APP\_KEY}.
+
+\vspace{0.5em}
+\textbf{Q: Co oznaczają jednostki w statystykach aktywności?} \\
+A: Dystans podawany jest w \textbf{kilometrach}, czas w \textbf{minutach}, prędkość w \textbf{km/h}, tętno w \textbf{bpm}, kalorie w \textbf{kcal}, przewyższenie w \textbf{metrach}.
+
+\vspace{0.5em}
+\textbf{Q: Ile aktywności można zaimportować z Garmin naraz?} \\
+A: Limit jednorazowego importu wynosi \textbf{1000 aktywności}. Kolejne synchronizacje pobierają wyłącznie aktywności nowsze niż ostatnia zapisana w bazie -- nie ma ograniczenia łącznej liczby rekordów.
+
+\vspace{0.5em}
+\textbf{Q: Jak usunąć konto?} \\
+A: Przejdź do \textbf{Profil} $\to$ sekcja \textit{Usuń konto}. Wpisz hasło jako potwierdzenie i kliknij \textit{Usuń konto}. Operacja jest nieodwracalna -- zostaną usunięte wszystkie aktywności, dane trasy GPS i historia logów.
+
+% ============================================================
+\chapter{Wnioski projektowe}
+\label{ch:wnioski}
+
+\section{Podsumowanie realizacji projektu}
+
+Projekt zakończył się zrealizowaniem kompletnej aplikacji webowej do śledzenia aktywności fizycznych. W toku pracy zespołowej zdobyto szereg doświadczeń i obserwacji dotyczących organizacji pracy, doboru narzędzi i metodyki wytwarzania oprogramowania. Poniżej przedstawiono wnioski, które mogą być wartościowe przy realizacji kolejnych projektów podobnej skali.
+
+\section{Kluczowe wnioski}
+
+\subsection{Bezpośrednia komunikacja zespołu jako fundament projektu}
+
+Jednym z najistotniejszych czynników sukcesu projektu okazały się regularne spotkania członków zespołu -- zarówno osobiste, jak i przez wideo. Omawianie bieżących kwestii w czasie rzeczywistym, nawet w formie krótkich sesji online, pozwalało na szybkie uzgodnienie kierunku implementacji, rozwiązywanie nieporozumień co do architektury i podziału zadań oraz uniknięcie sytuacji, w których dwóch programistów pracuje nad tym samym problemem lub -- co gorsza -- w sprzecznych kierunkach.
+
+Próby koordynacji wyłącznie przez komentarze w kodzie, wiadomości tekstowe czy opis zadań w systemie kontroli wersji okazały się niewystarczające przy bardziej złożonych decyzjach projektowych. Bezpośrednia komunikacja, choćby krótka, pozostaje niezastąpiona i praktycznie niezbędna przy omawianiu kluczowych kwestii projektu i wdrażanych rozwiązań.
+
+\subsection{Iteracyjna praca z małymi przyrostami}
+
+Projekt prowadzony był metodą iteracyjną -- zamiast próby zaimplementowania wszystkich funkcjonalności naraz, pracowano nad małymi, samodzielnymi przyrostami. Każda iteracja kończyła się działającą funkcją dostępną w głównej gałęzi projektu. Takie podejście przyniosło kilka wymiernych korzyści:
+\begin{itemize}
+    \item Błędy pojawiały się w kontekście świeżo dodanego, małego fragmentu kodu -- znacznie łatwiej było zidentyfikować ich źródło i naprawić je, zanim zaciemniły większy fragment systemu.
+    \item Historia Git pozostawała czytelna -- każdy commit odpowiadał konkretnej, skończonej funkcji.
+    \item Projekt był stale w stanie działającym, co eliminowało ryzyko „dużego wybuchu" na etapie integracji.
+\end{itemize}
+Regularne, małe wdrożenia minimalizowały ryzyko i ułatwiały naprawę błędów. Podejście monolityczne (duże zmiany rzadko) wielokrotnie prowadziłoby do trudnych do debugowania konfliktów.
+
+\subsection{Praca zespołowa jako akcelerator skali i jakości}
+
+Realizacja projektu w zespole pozwoliła na zbudowanie aplikacji o znacznie szerszym zakresie funkcjonalnym, niż byłoby to możliwe w tym samym czasie w pracy indywidualnej. Podział pracy według kompetencji i zainteresowań -- jeden programista skupia się na backendzie i integracji Garmin, inny na fronendzie i wizualizacji -- pozwolił na równoległe postępy w różnych obszarach systemu. Wzajemna weryfikacja kodu i wspólne rozwiązywanie problemów prowadziły do powstawania rozwiązań wyższej jakości niż praca w izolacji.
+
+Praca zespołowa wymaga inwestycji w komunikację i koordynację, jednak zwrot z tej inwestycji jest wyraźny zarówno w tempie powstawania nowych funkcjonalności, jak i w końcowej jakości produktu.
+
+\subsection{Agenci AI jako katalizator produktywności}
+
+Projekt korzystał z narzędzi opartych na agentach sztucznej inteligencji (m.in. Claude Code) do wspomagania implementacji. Zastosowanie agentów AI przyniosło zauważalne skrócenie czasu potrzebnego na tworzenie nowych funkcjonalności -- szkielety kodu, serwisy, komponenty Vue czy migracje bazy danych powstawały w ułamku czasu, jaki zajęłoby ich ręczne napisanie od zera.
+
+Agenci sprawdzali się szczególnie dobrze przy:
+\begin{itemize}[noitemsep]
+    \item generowaniu powtarzalnych struktur (migracje, kontrolery, komponenty),
+    \item eksploracji nieznanych bibliotek i ich API,
+    \item szybkim prototypowaniu rozwiązań do weryfikacji koncepcji,
+    \item refaktoryzacji i poprawie jakości istniejącego kodu.
+\end{itemize}
+
+Kluczowym wnioskiem jest jednak to, że agenci AI są narzędziem amplifikującym -- zwiększają produktywność doświadczonego programisty, który rozumie generowany kod i jest w stanie go zweryfikować, a nie zastępują samodzielnego myślenia projektowego.
+
+\section{Rekomendacje na przyszłość}
+
+Na podstawie doświadczeń zdobytych podczas realizacji projektu sformułowano następujące rekomendacje dla przyszłych przedsięwzięć:
+
+\begin{enumerate}
+    \item \textbf{Ustalenie kanałów komunikacji na początku projektu} -- jasno określić, kiedy używamy wiadomości tekstowej, a kiedy planujemy spotkanie.
+    \item \textbf{Zdefiniowanie standardów kodu przed pierwszym commitem} -- konfiguracja linterów, formaterów i haków pre-commit od pierwszego dnia eliminuje późniejsze konflikty stylistyczne.
+    \item \textbf{Małe, częste commity zamiast rzadkich dużych paczek zmian} -- ułatwia debugowanie, code review i cofanie błędnych decyzji.
+    \item \textbf{Integracja narzędzi AI od początku projektu} -- wcześniejsze oswojenie się z narzędziami AI w kontekście projektu przynosi większe korzyści niż sięganie po nie dopiero przy trudniejszych zadaniach.
+\end{enumerate}
+
+\section{Zakończenie}
+
+Projekt pozwolił zbudować kompletną aplikację do śledzenia aktywności fizycznych z integracją zewnętrznych platform sportowych, nowoczesnym frontendem i przemyślaną architekturą backendową. Sukces projektu jest wynikiem połączenia regularnej komunikacji w zespole, iteracyjnego podejścia do wytwarzania oprogramowania, efektywnej współpracy i umiejętnego wykorzystania nowoczesnych narzędzi wspomagania programowania. Doświadczenia zdobyte podczas realizacji projektu stanowią solidną podstawę dla kolejnych, bardziej ambitnych przedsięwzięć programistycznych.
+
+% ============================================================
+\end{document}
